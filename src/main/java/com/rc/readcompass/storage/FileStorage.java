@@ -1,5 +1,6 @@
 package com.rc.readcompass.storage;
 
+import com.rc.readcompass.book.BinaryContent;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
