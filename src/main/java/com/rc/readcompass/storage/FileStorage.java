@@ -1,4 +1,4 @@
-package com.rc.readcompass.storage.storage;
+package com.rc.readcompass.storage;
 
 import java.util.Collection;
 import java.util.List;

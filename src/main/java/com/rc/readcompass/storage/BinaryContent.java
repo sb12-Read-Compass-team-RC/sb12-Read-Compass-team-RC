@@ -1,4 +1,4 @@
-package com.rc.readcompass.storage.storage;
+package com.rc.readcompass.storage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.rc.readcompass.common.domain.BaseEntity;
