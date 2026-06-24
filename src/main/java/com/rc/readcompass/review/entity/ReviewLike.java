@@ -1,13 +1,12 @@
-package com.rc.readcompass.review;
+package com.rc.readcompass.review.entity;
 
 import com.rc.readcompass.common.domain.BaseEntity;
+import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.util.UUID;
 
 /**
  * 리뷰 좋아요.
@@ -27,9 +26,11 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewLike extends BaseEntity {
 
-    @Column(nullable = false, updatable = false, columnDefinition = "uuid")
-    private UUID reviewId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "review_id", nullable = false, updatable = false)
+    private Review review;
 
-    @Column(nullable = false, updatable = false, columnDefinition = "uuid")
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
 }
