@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "tb_books")
@@ -33,11 +35,12 @@ public class Book extends BaseUpdatableEntity {
     private LocalDate publishedDate;
 
     // ISBN은 등록 후 수정 불가
-    @Column(updatable = false, length = 20, unique = true)
+    @Column(nullable = false, updatable = false, length = 20, unique = true)
     private String isbn;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "book_category", nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private BookCategory category;
 
     // 리뷰 등록/삭제 시 갱신되는 비정규화 카운터
@@ -59,7 +62,7 @@ public class Book extends BaseUpdatableEntity {
     // =====================================================
 
     public void updateInfo(String title, String author, String description,
-                           String publisher, LocalDate publishedDate, BookCategory category) {
+        String publisher, LocalDate publishedDate, BookCategory category) {
         this.title = title;
         this.author = author;
         this.description = description;
