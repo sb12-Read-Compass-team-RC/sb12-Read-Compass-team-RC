@@ -1,10 +1,11 @@
 package com.rc.readcompass.comments.entity;
 
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
-import com.rc.readcompass.review.Review;
+import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -30,6 +31,7 @@ public class Comment extends BaseUpdatableEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;
 
