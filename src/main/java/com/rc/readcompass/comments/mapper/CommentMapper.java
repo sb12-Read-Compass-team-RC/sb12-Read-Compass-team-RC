@@ -15,11 +15,15 @@ public interface CommentMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "deleted", ignore = true)
   @Mapping(target = "content", source = "request.content")
   @Mapping(target = "user", source = "user")
   @Mapping(target = "review", source = "review")
   Comment toEntity(CommentCreateRequest request, User user, Review review);
 
+  @Mapping(target = "reviewId", source = "review.id")
+  @Mapping(target = "userId", source = "user.id")
+  @Mapping(target = "userNickname", source = "user.nickname")
   CommentDto toResponse(Comment comment);
 
   List<CommentDto> toResponseList(List<Comment> comments);
