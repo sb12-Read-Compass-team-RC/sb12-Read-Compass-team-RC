@@ -159,8 +159,6 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
         .content(content)
         .hasNext(hasNext)
         .size(size)
-        .sort(sort)
-        .direction(order)
         .nextCursor(nextCursor)
         .nextAfter(nextAfter)
         .totalElements(-1)
