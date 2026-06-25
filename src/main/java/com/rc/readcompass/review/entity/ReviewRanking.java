@@ -4,6 +4,7 @@ import com.rc.readcompass.common.PeriodType;import com.rc.readcompass.common.dom
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,7 +52,7 @@ public class ReviewRanking extends BaseEntity {
 
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2,updatable = false)
-    private Double score;
+    private BigDecimal score;
 
     @NotNull
     @Column(name = "calculated_at", nullable = false, updatable = false)
