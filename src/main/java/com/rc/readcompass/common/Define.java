@@ -4,5 +4,7 @@ package com.rc.readcompass.common;
 public class Define {
 
   // 예시
-  public static final String BACKUP_LOG = "BACKUP_LOG";
+  public static final String role = "ROLE_";
+
+  public static final String refresh = "refresh";
 }
