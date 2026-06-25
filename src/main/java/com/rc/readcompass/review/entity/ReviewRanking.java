@@ -43,7 +43,7 @@ public class ReviewRanking extends BaseEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "period_type", nullable = false, length = 20,updatable = false)
-    private PeriodType periodType;
+    private PeriodType period;
 
     @Min(1)
     @Column(name = "rank_position", nullable = false,updatable = false)
