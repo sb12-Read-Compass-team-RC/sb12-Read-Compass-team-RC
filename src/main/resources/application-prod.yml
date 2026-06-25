@@ -16,7 +16,6 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
   servlet:
@@ -58,3 +57,15 @@ logging:
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: off
     org.springframework.web: info
+
+app:
+  frontend:
+    auth-success-url: ${SUCCESS_REDIRECT_URL:http://localhost:8080/#/oauth/callback}
+    auth-failure-url: ${SUCCESS_REDIRECT_URL:http://localhost:8080/#/auth/error}
+  jwt:
+    access-expire-ms: ${ACCESS_EXPIRE_MS:1800000}      # 30분
+    refresh-expire-ms: ${REFRESH_EXPIRE_MS:1209600000} # 14일
+  cookie:
+    secure: true
+    same-site: Lax
+    refresh-max-age: ${REFRESH_MAX_AGE:1209600}        # 14일(초)

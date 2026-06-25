@@ -30,3 +30,16 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.web: info
     com.rc.readcompass: debug
+
+
+app:
+  frontend:
+    auth-success-url: http://localhost:8080/#/oauth/callback
+    auth-failure-url: http://localhost:8080/#/auth/error
+  jwt:
+    access-expire-ms: 60000      # 1분
+    refresh-expire-ms: 300000    # 5분
+  cookie:
+    secure: false
+    same-site: Lax
+    refresh-max-age: 300         # 5분(초)

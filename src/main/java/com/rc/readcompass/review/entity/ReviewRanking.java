@@ -1,20 +1,19 @@
-package com.rc.readcompass.review;
+package com.rc.readcompass.review.entity;
 
 import com.rc.readcompass.common.PeriodType;import com.rc.readcompass.common.domain.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * 인기 리뷰 랭킹 스냅샷.
  * 매일 배치로 계산되며, calculated_at 기준 최신 데이터를 조회에 사용한다.
- *
  * 점수 = (해당 기간의 좋아요 수 × 0.3) + (해당 기간의 댓글 수 × 0.7)
  * 인기 순위 TOP 10 진입 시 리뷰 작성자에게 알림 발송.
  */
@@ -37,19 +36,24 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewRanking extends BaseEntity {
 
-    @Column(nullable = false, updatable = false, columnDefinition = "uuid")
-    private UUID reviewId;
+    @ManyToOne(fetch = FetchType.LAZY,optional = false)
+    @JoinColumn(name="review_id", nullable = false, updatable = false)
+    private Review review;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "period_type", nullable = false, length = 20)
-    private PeriodType periodType;
+    @Column(name = "period_type", nullable = false, length = 20,updatable = false)
+    private PeriodType period;
 
-    @Column(nullable = false)
+    @Min(1)
+    @Column(name = "rank_position", nullable = false,updatable = false)
     private int rankPosition;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal score;
+    @NotNull
+    @Column(nullable = false, precision = 10, scale = 2,updatable = false)
+    private Double score;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "calculated_at", nullable = false, updatable = false)
     private Instant calculatedAt;
 }
