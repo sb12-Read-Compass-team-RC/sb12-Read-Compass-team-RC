@@ -18,7 +18,13 @@ public interface BookMapper {
   Book toEntity(BookCreateRequest request);
 
   @Mapping(target = "thumbnailUrl", source = "thumbnailUrl")
-  @Mapping(target = "reviewCount", source = "book.reviewCnt")
+  @Mapping(target = "reviewCount", source = "reviewCount")
+  @Mapping(target = "rating", source = "rating")
   @Mapping(target = "categoryLabel", expression = "java(book.getCategory().getLabel())")
-  BookDto toDto(Book book, String thumbnailUrl);
+  BookDto toDto(
+      Book book,
+      String thumbnailUrl,
+      int reviewCount,
+      double rating
+  );
 }
