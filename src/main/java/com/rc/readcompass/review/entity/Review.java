@@ -1,16 +1,15 @@
-package com.rc.readcompass.review;
+package com.rc.readcompass.review.entity;
 
+import com.rc.readcompass.book.Book;
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
+import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.UUID;
 
 @Entity
 @Table(
@@ -26,12 +25,15 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseUpdatableEntity {
 
-    @Column(nullable = false, columnDefinition = "uuid")
-    private UUID bookId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "book_id",nullable = false)
+    private Book book;
 
-    @Column(nullable = false, columnDefinition = "uuid")
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY,optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
+    @NotBlank
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -40,10 +42,12 @@ public class Review extends BaseUpdatableEntity {
     @Column(nullable = false)
     private int rating;
 
+    @Min(0)
     @Builder.Default
     @Column(name = "like_cnt", nullable = false)
     private int likeCnt = 0;
 
+    @Min(0)
     @Builder.Default
     @Column(name = "comment_cnt", nullable = false)
     private int commentCnt = 0;
@@ -57,8 +61,23 @@ public class Review extends BaseUpdatableEntity {
     // =====================================================
 
     public void updateReview(String content, int rating) {
+        validateContent (content);
+        validateRating(rating);
+
         this.content = content;
         this.rating = rating;
+    }
+
+    private void validateContent(String content){
+        if(content == null || content.isBlank()){
+            throw new IllegalArgumentException("리뷰 내용은 비어있을 수 없습니다.");
+        }
+    }
+
+    private void validateRating(int rating){
+        if(rating < 1 || rating > 5){
+            throw new IllegalArgumentException("평점은 1점 이상 5점 이하만 가능합니다.");
+        }
     }
 
     public void incrementLikeCount() {
