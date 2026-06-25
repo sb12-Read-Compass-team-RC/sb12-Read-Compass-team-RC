@@ -25,6 +25,9 @@ public interface ReviewMapper {
     @Mapping(target = "likeCnt", constant = "0")
     @Mapping(target = "commentCnt", constant = "0")
     @Mapping(target = "deleted", constant = "false")
+    @Mapping(target="createdAt", ignore = true)
+    @Mapping(target="updatedAt", ignore = true)
+    @Mapping(target="id", ignore = true)
     Review toEntity(
             ReviewCreateRequest request,
             Book book,
