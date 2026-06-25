@@ -1,35 +1,32 @@
-package com.rc.readcompass.comments.entity;
+package com.rc.readcompass.comments;
 
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
-import com.rc.readcompass.review.Review;
-import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_comments")
 @Getter
-@SuperBuilder @ToString(callSuper = true)
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseUpdatableEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @ToString.Exclude
-    private User user;
+    @Column(nullable = false, columnDefinition = "uuid")
+    private UUID reviewId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id", nullable = false)
-    @ToString.Exclude
-    private Review review;
+    @Column(nullable = false, columnDefinition = "uuid")
+    private UUID userId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;
 
