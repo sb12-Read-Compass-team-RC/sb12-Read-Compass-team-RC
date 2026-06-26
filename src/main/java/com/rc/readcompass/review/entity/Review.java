@@ -2,7 +2,7 @@ package com.rc.readcompass.review.entity;
 
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -24,7 +24,7 @@ public class Review extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserRole.User user;
+    private User user;
 
     @NotBlank
     @Column(nullable = false, columnDefinition = "TEXT")
