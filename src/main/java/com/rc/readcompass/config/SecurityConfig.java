@@ -10,6 +10,7 @@ import com.rc.readcompass.jwt.util.JWTUtil;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginFailureHandler;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.rc.readcompass.oauth2.service.CustomOAuth2UserService;
+import jakarta.servlet.DispatcherType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +84,7 @@ public class SecurityConfig {
         .httpBasic(basic -> basic.disable());
 
     http.authorizeHttpRequests(auth -> auth
+        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
         .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
             "/*.ico", "/*.png").permitAll()
