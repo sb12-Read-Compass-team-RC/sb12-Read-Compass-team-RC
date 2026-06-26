@@ -1,6 +1,6 @@
 package com.rc.readcompass.book.dto;
 
-import com.rc.readcompass.book.BookCategory;
+import com.rc.readcompass.book.entity.BookCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

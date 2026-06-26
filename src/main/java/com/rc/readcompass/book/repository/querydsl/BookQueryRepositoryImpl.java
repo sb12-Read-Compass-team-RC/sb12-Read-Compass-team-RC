@@ -6,9 +6,10 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.rc.readcompass.book.Book;
-import com.rc.readcompass.book.QBinaryContent;
-import com.rc.readcompass.book.QBook;
+import com.rc.readcompass.book.entity.Book;
+import com.rc.readcompass.book.entity.BookCategory;
+import com.rc.readcompass.book.entity.QBinaryContent;
+import com.rc.readcompass.book.entity.QBook;
 import com.rc.readcompass.book.dto.BookDto;
 import com.rc.readcompass.book.dto.BookSearchRequest;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
@@ -40,11 +41,19 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
     if (request.keyword() != null && !request.keyword().isBlank()) {
       String keyword = request.keyword().trim();
 
-      where.and(
-          b.title.containsIgnoreCase(keyword)
-              .or(b.author.containsIgnoreCase(keyword))
-              .or(b.isbn.containsIgnoreCase(keyword))
-      );
+      BooleanBuilder keywordCondition = new BooleanBuilder();
+
+      keywordCondition.or(b.title.containsIgnoreCase(keyword));
+      keywordCondition.or(b.author.containsIgnoreCase(keyword));
+      keywordCondition.or(b.isbn.containsIgnoreCase(keyword));
+      keywordCondition.or(b.category.stringValue().containsIgnoreCase(keyword));
+
+      BookCategory matchedCategory = BookCategory.fromKeyword(keyword);
+      if (matchedCategory != null) {
+        keywordCondition.or(b.category.eq(matchedCategory));
+      }
+
+      where.and(keywordCondition);
     }
 
     Order order = getOrder(request);
