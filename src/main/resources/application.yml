@@ -23,7 +23,6 @@ spring:
         format_sql: true
         highlight_sql: true
         use_sql_comments: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         jdbc.time_zone: UTC
     open-in-view: false
@@ -44,3 +43,10 @@ read-compass:
   storage:
     local:
       root-path: .read-compass/storage
+
+app:
+  jwt:
+    access-expire-ms: ${ACCESS_EXPIRE_MS:600000}      # 기본 10분
+    refresh-expire-ms: ${REFRESH_EXPIRE_MS:86400000}  # 기본 1일
+  cookie:
+    refresh-max-age: ${REFRESH_MAX_AGE:86400}          # 기본 1일(초)

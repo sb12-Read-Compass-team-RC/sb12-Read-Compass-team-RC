@@ -108,7 +108,7 @@ CREATE TABLE tb_books (
     description     TEXT NOT NULL,
     publisher       VARCHAR(100) NOT NULL,
     published_date  DATE NOT NULL,
-    isbn            VARCHAR(20) NULL,
+    isbn            VARCHAR(20) NOT NULL,
     category        book_category NOT NULL,
     review_cnt      INTEGER DEFAULT 0 NOT NULL,
     rating          DOUBLE PRECISION DEFAULT 0 NOT NULL,

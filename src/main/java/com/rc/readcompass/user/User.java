@@ -1,8 +1,7 @@
 package com.rc.readcompass.user;
 
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
-import com.rc.readcompass.oauth2.AuthProvider;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.oauth2.dto.AuthProvider;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 @Entity
 @Table(name = "tb_users")
@@ -32,10 +33,12 @@ public class User extends BaseUpdatableEntity {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "user_role", nullable = false)
     @Builder.Default
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private UserRole role = UserRole.USER;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "auth_provider")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private AuthProvider provider;
 
     @Column(length = 255)
