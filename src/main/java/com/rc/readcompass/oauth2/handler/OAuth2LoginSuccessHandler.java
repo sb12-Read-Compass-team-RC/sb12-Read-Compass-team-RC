@@ -3,7 +3,7 @@ package com.rc.readcompass.oauth2.handler;
 import com.rc.readcompass.jwt.service.RefreshTokenService;
 import com.rc.readcompass.jwt.util.CookieUtil;
 import com.rc.readcompass.jwt.util.JWTUtil;
-import com.rc.readcompass.oauth2.dto.CustomOAuth2User;
+import com.rc.readcompass.oauth2.entity.CustomOAuth2User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;

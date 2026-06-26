@@ -88,10 +88,9 @@ public class SecurityConfig {
             "/*.ico", "/*.png").permitAll()
         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
         // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
-        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()          // 회원가입
+        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
         .requestMatchers("/api/users/login", "/api/users/reissue",
             "/api/users/logout").permitAll()
-        // (공개 GET 목록이 필요하면 여기에 추가)
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated()
     );
