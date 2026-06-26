@@ -1,6 +1,6 @@
 package com.rc.readcompass.review.mapper;
 
-import com.rc.readcompass.book.Book;
+import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.review.dto.PopularReviewDto;
 import com.rc.readcompass.review.dto.ReviewCreateRequest;
 import com.rc.readcompass.review.dto.ReviewDto;
