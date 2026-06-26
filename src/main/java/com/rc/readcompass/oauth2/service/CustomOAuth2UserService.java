@@ -1,7 +1,7 @@
 package com.rc.readcompass.oauth2.service;
 
 import com.rc.readcompass.oauth2.dto.AuthProvider;
-import com.rc.readcompass.oauth2.dto.CustomOAuth2User;
+import com.rc.readcompass.oauth2.entity.CustomOAuth2User;
 import com.rc.readcompass.oauth2.dto.GoogleResponse;
 import com.rc.readcompass.oauth2.dto.NaverResponse;
 import com.rc.readcompass.oauth2.dto.OAuth2Response;
