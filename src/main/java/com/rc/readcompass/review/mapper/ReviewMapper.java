@@ -8,7 +8,7 @@ import com.rc.readcompass.review.dto.ReviewLikeDto;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.entity.ReviewLike;
 import com.rc.readcompass.review.entity.ReviewRanking;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -31,7 +31,7 @@ public interface ReviewMapper {
     Review toEntity(
             ReviewCreateRequest request,
             Book book,
-            UserRole.User user
+            User user
     );
 
     // Review -> ReviewDto

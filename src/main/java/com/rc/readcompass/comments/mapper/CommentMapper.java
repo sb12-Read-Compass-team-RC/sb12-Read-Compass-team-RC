@@ -4,10 +4,8 @@ import com.rc.readcompass.comments.dto.CommentCreateRequest;
 import com.rc.readcompass.comments.dto.CommentDto;
 import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.review.entity.Review;
-
+import com.rc.readcompass.user.User;
 import java.util.List;
-
-import com.rc.readcompass.user.Entity.UserRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,7 +19,7 @@ public interface CommentMapper {
   @Mapping(target = "content", source = "request.content")
   @Mapping(target = "user", source = "user")
   @Mapping(target = "review", source = "review")
-  Comment toEntity(CommentCreateRequest request, UserRole.User user, Review review);
+  Comment toEntity(CommentCreateRequest request, User user, Review review);
 
   @Mapping(target = "reviewId", source = "review.id")
   @Mapping(target = "userId", source = "user.id")
