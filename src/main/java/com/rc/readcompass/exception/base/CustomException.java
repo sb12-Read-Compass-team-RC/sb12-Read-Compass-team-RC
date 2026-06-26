@@ -20,4 +20,9 @@ public class CustomException extends RuntimeException {
         this.details.add(detail);
         return this;
     }
+
+    public CustomException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getMessage(), cause);
+        this.errorCode = errorCode;
+    }
 }
