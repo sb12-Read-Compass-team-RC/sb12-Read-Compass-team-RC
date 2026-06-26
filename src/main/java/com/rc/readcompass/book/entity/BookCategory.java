@@ -1,4 +1,4 @@
-package com.rc.readcompass.book;
+package com.rc.readcompass.book.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

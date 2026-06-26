@@ -1,4 +1,4 @@
-package com.rc.readcompass.book;
+package com.rc.readcompass.book.entity;
 
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
 import jakarta.persistence.*;

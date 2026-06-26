@@ -1,7 +1,7 @@
 package com.rc.readcompass.storage.impl;
 
 import com.fasterxml.uuid.Generators;
-import com.rc.readcompass.book.BinaryContent;
+import com.rc.readcompass.book.entity.BinaryContent;
 import com.rc.readcompass.storage.FileStorage;
 import java.io.IOException;
 import java.time.Duration;
