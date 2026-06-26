@@ -11,7 +11,7 @@ import com.rc.readcompass.book.repository.BinaryContentRepository;
 import com.rc.readcompass.book.repository.BookRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
-import com.rc.readcompass.exception.domain.BookException;
+import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.storage.FileStorage;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +32,7 @@ public class BookService {
   @Transactional
   public BookDto create(BookCreateRequest request, MultipartFile thumbnail) {
     if (request.isbn() != null && bookRepository.existsByIsbn(request.isbn())) {
-      throw new BookException(ErrorCode.DUPLICATE_ISBN)
+      throw new CustomException(ErrorCode.DUPLICATE_ISBN)
           .addDetail("isbn=" + request.isbn());
     }
 
@@ -121,7 +121,7 @@ public class BookService {
   @Transactional
   public void hardDelete(UUID id) {
     Book book = bookRepository.findById(id)
-        .orElseThrow(() -> new BookException(ErrorCode.BOOK_NOT_FOUND)
+        .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
             .addDetail("bookId=" + id));
 
     binaryContentRepository.findByBookId(id)
@@ -135,7 +135,7 @@ public class BookService {
 
   private Book findActiveBook(UUID id) {
     return bookRepository.findByIdAndDeletedFalse(id)
-        .orElseThrow(() -> new BookException(ErrorCode.BOOK_NOT_FOUND)
+        .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
             .addDetail("bookId=" + id));
   }
 
