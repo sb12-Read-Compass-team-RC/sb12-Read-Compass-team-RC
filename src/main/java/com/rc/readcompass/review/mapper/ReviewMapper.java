@@ -59,25 +59,4 @@ public interface ReviewMapper {
     default ReviewLikeDto toLikeDto(UUID reviewId, UUID userId, boolean liked){
         return new ReviewLikeDto(reviewId, userId, liked);
     }
-
-    // ReviewRanking -> PopularReviewDto
-    @Mapping(target = "id", source = "reviewRanking.id")
-    @Mapping(target = "reviewId", source = "reviewRanking.review.id")
-    @Mapping(target = "bookId", source = "reviewRanking.review.book.id")
-    @Mapping(target = "bookTitle", source = "reviewRanking.review.book.title")
-    @Mapping(target = "bookThumbnailUrl", source = "bookThumbnailUrl")
-    @Mapping(target = "userId", source = "reviewRanking.review.user.id")
-    @Mapping(target = "userNickname", source = "reviewRanking.review.user.nickname")
-    @Mapping(target = "reviewContent", source = "reviewRanking.review.content")
-    @Mapping(target = "reviewRating", source = "reviewRanking.review.rating")
-    @Mapping(target = "period", source = "reviewRanking.period")
-    @Mapping(target = "createdAt", source = "reviewRanking.calculatedAt")
-    @Mapping(target = "rank", source = "reviewRanking.rankPosition")
-    @Mapping(target = "score", source = "reviewRanking.score")
-    @Mapping(target = "likeCount", source = "reviewRanking.review.likeCnt")
-    @Mapping(target = "commentCount", source = "reviewRanking.review.commentCnt")
-    PopularReviewDto toPopularDto(
-            ReviewRanking reviewRanking,
-            String bookThumbnailUrl
-    );
 }

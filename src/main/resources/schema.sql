@@ -300,11 +300,6 @@ CREATE TABLE tb_book_rankings (
 
     CONSTRAINT pk_tb_book_rankings PRIMARY KEY (id),
 
-    CONSTRAINT fk_tb_book_rankings_book
-      FOREIGN KEY (book_id)
-          REFERENCES tb_books (id)
-          ON DELETE CASCADE,
-
     CONSTRAINT chk_tb_book_rankings_period_type
       CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'ALL_TIME')),
 
@@ -334,11 +329,6 @@ CREATE TABLE tb_review_rankings (
 
     CONSTRAINT pk_tb_review_rankings PRIMARY KEY (id),
 
-    CONSTRAINT fk_tb_review_rankings_review
-        FOREIGN KEY (review_id)
-            REFERENCES tb_reviews (id)
-            ON DELETE CASCADE,
-
     CONSTRAINT chk_tb_review_rankings_period_type
         CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'ALL_TIME')),
 
@@ -365,11 +355,6 @@ CREATE TABLE tb_user_rankings (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_tb_user_rankings PRIMARY KEY (id),
-
-    CONSTRAINT fk_tb_user_rankings_user
-      FOREIGN KEY (user_id)
-          REFERENCES tb_users (id)
-          ON DELETE CASCADE,
 
     CONSTRAINT chk_tb_user_rankings_period_type
       CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'ALL_TIME')),
