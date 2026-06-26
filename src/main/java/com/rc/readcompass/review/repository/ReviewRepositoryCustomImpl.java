@@ -5,8 +5,8 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.rc.readcompass.book.entity.QBinaryContent;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.review.dto.ReviewDto;
 import com.rc.readcompass.review.dto.ReviewSearchRequest;
@@ -23,15 +23,17 @@ import java.util.List;
 public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
     private final QReview r = QReview.review;
     private final QReviewLike myLike = new QReviewLike("myLike");
+    private final QBinaryContent binaryContent = new QBinaryContent("binaryContent");
 
     @Override
     public SliceCursorPageResponse<ReviewDto> searchCursorSortedFlat(ReviewSearchRequest request) {
-        BooleanBuilder where = new BooleanBuilder();
+        BooleanBuilder baseWhere = new BooleanBuilder();
 
         // soft delete 제외
-        where.and(r.deleted.isFalse());
+        baseWhere.and(r.deleted.isFalse());
 
         // 동적 쿼리 검색
         // 부분일치 : 작성자 닉네임, 내용, 도서제목
@@ -39,20 +41,30 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         if(request.keyword() !=  null && !request.keyword().isBlank()) {
             String keyword = request.keyword();
 
-            where.and(
+            baseWhere.and(
                     r.user.nickname.containsIgnoreCase(keyword)
                     .or(r.content.containsIgnoreCase(keyword))
-                    .or(r.content.containsIgnoreCase(keyword))
+                    .or(r.book.title.containsIgnoreCase(keyword))
             );
         }
 
         if(request.userId() != null){
-            where.and(r.user.id.eq(request.userId()));
+            baseWhere.and(r.user.id.eq(request.userId()));
         }
 
         if(request.bookId() != null){
-            where.and(r.book.id.eq(request.bookId()));
+            baseWhere.and(r.book.id.eq(request.bookId()));
         }
+
+        Long totalElements = queryFactory
+                .select(r.count())
+                .from(r)
+                .join(r.user)
+                .join(r.book)
+                .where(baseWhere)
+                .fetchOne();
+
+        BooleanBuilder pageWhere = new BooleanBuilder(baseWhere);
 
         // 정렬 방향
         Order order = (request.direction() == null || request.direction() == Order.DESC)
@@ -84,13 +96,13 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 int cursorRating = Integer.parseInt(cursor);
 
                 if(order == Order.DESC){
-                    where.and(r.rating.lt(cursorRating)
+                    pageWhere.and(r.rating.lt(cursorRating)
                         .or(r.rating.eq(cursorRating)
                         .and(r.createdAt.lt(after))
                         )
                     );
                 } else {
-                    where.and(r.rating.gt(cursorRating)
+                    pageWhere.and(r.rating.gt(cursorRating)
                             .or(r.rating.eq(cursorRating)
                                     .and(r.createdAt.gt(after))
                             )
@@ -106,9 +118,9 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 Instant cursorCreatedAt = Instant.parse(cursor);
 
                 if(order == Order.DESC){
-                    where.and(r.createdAt.lt(cursorCreatedAt));
+                    pageWhere.and(r.createdAt.lt(cursorCreatedAt));
                 } else{
-                    where.and(r.createdAt.gt(cursorCreatedAt));
+                    pageWhere.and(r.createdAt.gt(cursorCreatedAt));
                 }
             }
 
@@ -134,7 +146,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                         r.book.title,
 
 //                      썸네일 조인 구조에 맞게 교체  binaryContent.renamedFileUrl,
-                        Expressions.nullExpression(String.class),
+                        binaryContent.renamedFileUrl,
 
                         r.user.id,
                         r.user.nickname,
@@ -149,18 +161,23 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .from(r)
                 .join(r.user)
                 .join(r.book)
+
+                .leftJoin(binaryContent)
+                .on(binaryContent.book.eq(r.book))
+
                 .leftJoin(myLike)
-                    .on(myLike.review.eq(r)
+                .on(myLike.review.eq(r)
                             .and(myLike.user.id.eq(request.requestUserId()))
-                    )
-                .where(where)
+                )
+                .where(pageWhere)
                 .orderBy(orderSpecifiers)
                 .limit(size+1L)
                 .fetch();
 
         boolean hasNext = rowsPlusOne.size() > size;
-        List<ReviewDto> contents = hasNext ?
-                rowsPlusOne.subList(0,size)
+
+        List<ReviewDto> contents = hasNext
+                ? rowsPlusOne.subList(0,size)
                 : rowsPlusOne;
 
         String nextCursor = null;
@@ -171,13 +188,10 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
 
             if("rating".equals(orderBy)){
                 nextCursor = String.valueOf(last.rating());
-
-                nextAfter = last.createdAt();
             } else {
                 nextCursor = last.createdAt().toString();
-
-                nextAfter = last.createdAt();
             }
+            nextAfter = last.createdAt();
         }
 
         return SliceCursorPageResponse.<ReviewDto>builder()
@@ -186,7 +200,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .size(size)
                 .nextCursor(nextCursor)
                 .nextAfter(nextAfter)
-                .totalElements(-1L)
+                .totalElements(totalElements == null ? 0L : totalElements)
                 .build();
     }
 }
