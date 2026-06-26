@@ -2,8 +2,7 @@ package com.rc.readcompass.oauth2.entity;
 
 import com.rc.readcompass.common.Define;
 import com.rc.readcompass.oauth2.dto.OAuth2Response;
-import com.rc.readcompass.user.User;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.Entity.UserRole;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class CustomOAuth2User implements OAuth2User {
   private final UserRole role;
   private final Map<String, Object> attributes;
 
-  public CustomOAuth2User(User user, OAuth2Response userInfo) {
+  public CustomOAuth2User(UserRole.User user, OAuth2Response userInfo) {
     this.userId     = user.getId();
     this.nickname   = user.getNickname();
     this.role       = user.getRole();
