@@ -37,4 +37,20 @@ public enum BookCategory {
 
   private final String label;
 
+  public static BookCategory fromKeyword(String keyword) {
+    if (keyword == null || keyword.isBlank()) {
+      return null;
+    }
+
+    String normalizedKeyword = keyword.trim().toLowerCase();
+
+    for (BookCategory category : values()) {
+      if (category.name().toLowerCase().contains(normalizedKeyword)
+          || category.label.toLowerCase().contains(normalizedKeyword)) {
+        return category;
+      }
+    }
+
+    return null;
+  }
 }
