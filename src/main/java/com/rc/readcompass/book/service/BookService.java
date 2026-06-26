@@ -1,5 +1,6 @@
 package com.rc.readcompass.book.service;
 
+import com.rc.readcompass.book.client.NaverBookClient;
 import com.rc.readcompass.book.entity.BinaryContent;
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.dto.BookCreateRequest;
@@ -13,12 +14,16 @@ import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.storage.FileStorage;
+import com.rc.readcompass.book.client.NaverBookClient;
+import com.rc.readcompass.book.dto.NaverBookDto;
+
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ public class BookService {
   private final BinaryContentRepository binaryContentRepository;
   private final BookMapper bookMapper;
   private final FileStorage fileStorage;
+  private final NaverBookClient naverBookClient;
 
   @Transactional
   public BookDto create(BookCreateRequest request, MultipartFile thumbnail) {
@@ -137,6 +143,16 @@ public class BookService {
     return bookRepository.findByIdAndDeletedFalse(id)
         .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
             .addDetail("bookId=" + id));
+  }
+
+  @Transactional(readOnly = true)
+  public NaverBookDto getBookInfoByIsbn(String isbn) {
+    if (isbn == null || isbn.isBlank()) {
+      throw new CustomException(ErrorCode.INVALID_REQUEST)
+          .addDetail("isbn은 필수입니다.");
+    }
+
+    return naverBookClient.searchByIsbn(isbn.trim());
   }
 
   private BinaryContent saveThumbnail(Book book, MultipartFile thumbnail) {
