@@ -2,8 +2,8 @@ package com.rc.readcompass.jwt.service;
 
 import com.rc.readcompass.jwt.dto.AuthDto;
 import com.rc.readcompass.jwt.entity.CustomUserDetails;
-import com.rc.readcompass.user.Repository.UserRepository;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserRole.User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
 
         AuthDto authDto = new AuthDto();
