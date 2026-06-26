@@ -6,6 +6,7 @@ import com.rc.readcompass.book.dto.BookDto;
 import com.rc.readcompass.book.dto.BookSearchRequest;
 import com.rc.readcompass.book.dto.BookUpdateRequest;
 import com.rc.readcompass.book.service.BookService;
+import com.rc.readcompass.book.dto.NaverBookDto;
 
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
@@ -44,6 +45,13 @@ public class BookController {
   ) {
     BookDto response = bookService.create(bookData, thumbnailImage);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @GetMapping("/info")
+  public ResponseEntity<NaverBookDto> getBookInfoByIsbn(
+      @RequestParam String isbn
+  ) {
+    return ResponseEntity.ok(bookService.getBookInfoByIsbn(isbn));
   }
 
   @GetMapping("/{bookId}")

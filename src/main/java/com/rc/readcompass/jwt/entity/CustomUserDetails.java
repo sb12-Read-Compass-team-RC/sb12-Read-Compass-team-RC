@@ -2,7 +2,7 @@ package com.rc.readcompass.jwt.entity;
 
 import com.rc.readcompass.common.Define;
 import com.rc.readcompass.jwt.dto.AuthDto;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.Entity.UserRole;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;

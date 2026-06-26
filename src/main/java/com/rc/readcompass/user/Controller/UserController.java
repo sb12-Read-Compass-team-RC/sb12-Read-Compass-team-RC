@@ -1,6 +1,8 @@
-package com.rc.readcompass.user;
+package com.rc.readcompass.user.Controller;
 
 import com.rc.readcompass.oauth2.dto.AuthProvider;
+import com.rc.readcompass.user.Repository.UserRepository;
+import com.rc.readcompass.user.Entity.UserRole;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,7 +39,7 @@ public class UserController {
         }
 
         // 저장
-        User user = User.builder()
+        UserRole.User user = UserRole.User.builder()
             .email(request.getEmail())
             .nickname(request.getNickname())
             .password(passwordEncoder.encode(request.getPassword()))
