@@ -14,9 +14,6 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
 
   servlet:
     multipart:
@@ -53,7 +50,7 @@ aws:
 
 logging:
   level:
-    com.codeit.blog: INFO
+    com.rc.readcompass: info
     org.hibernate.SQL: off
     org.hibernate.orm.jdbc.bind: off
     org.springframework.web: info
@@ -61,7 +58,7 @@ logging:
 app:
   frontend:
     auth-success-url: ${SUCCESS_REDIRECT_URL:http://localhost:8080/#/oauth/callback}
-    auth-failure-url: ${SUCCESS_REDIRECT_URL:http://localhost:8080/#/auth/error}
+    auth-failure-url: ${FAILURE_REDIRECT_URL:http://localhost:8080/#/auth/error}
   jwt:
     access-expire-ms: ${ACCESS_EXPIRE_MS:1800000}      # 30분
     refresh-expire-ms: ${REFRESH_EXPIRE_MS:1209600000} # 14일
