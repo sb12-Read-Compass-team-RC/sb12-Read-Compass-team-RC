@@ -5,9 +5,8 @@ import com.rc.readcompass.oauth2.entity.CustomOAuth2User;
 import com.rc.readcompass.oauth2.dto.GoogleResponse;
 import com.rc.readcompass.oauth2.dto.NaverResponse;
 import com.rc.readcompass.oauth2.dto.OAuth2Response;
-import com.rc.readcompass.user.User;
-import com.rc.readcompass.user.UserRepository;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.Repository.UserRepository;
+import com.rc.readcompass.user.Entity.UserRole;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +60,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     // 4. DB 조회 → 신규 가입 or 업데이트
-    User user = userRepository.findByEmail(email)
+    UserRole.User user = userRepository.findByEmail(email)
         .map(existing -> updateExistingUser(existing))
         .orElseGet(() -> registerNewUser(oAuth2Response));
 
@@ -72,13 +71,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
   // Private helpers
   // =====================================================
 
-  private User registerNewUser(OAuth2Response userInfo) {
+  private UserRole.User registerNewUser(OAuth2Response userInfo) {
     String baseNickname = userInfo.getName() != null ? userInfo.getName() : "user";
     String uniqueNickname = resolveUniqueNickname(baseNickname);
 
     AuthProvider provider = AuthProvider.valueOf(userInfo.getProvider().toUpperCase());
 
-    User newUser = User.builder()
+    UserRole.User newUser = UserRole.User.builder()
         .email(userInfo.getEmail())
         .nickname(uniqueNickname)
         .password(null)          // 소셜 로그인은 패스워드 없음
@@ -92,7 +91,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     return userRepository.save(newUser);
   }
 
-  private User updateExistingUser(User user) {
+  private UserRole.User updateExistingUser(UserRole.User user) {
     user.updateLastLoginAt(Instant.now());
     return user;  // @Transactional 이므로 dirty checking으로 반영됨
   }

@@ -2,7 +2,7 @@ package com.rc.readcompass.comments.entity;
 
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.Entity.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,7 +21,7 @@ public class Comment extends BaseUpdatableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
-    private User user;
+    private UserRole.User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
