@@ -10,6 +10,7 @@ import com.rc.readcompass.jwt.util.JWTUtil;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginFailureHandler;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.rc.readcompass.oauth2.service.CustomOAuth2UserService;
+import jakarta.servlet.DispatcherType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,15 +84,15 @@ public class SecurityConfig {
         .httpBasic(basic -> basic.disable());
 
     http.authorizeHttpRequests(auth -> auth
+        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
         .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
             "/*.ico", "/*.png").permitAll()
         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
         // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
-        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()          // 회원가입
+        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
         .requestMatchers("/api/users/login", "/api/users/reissue",
             "/api/users/logout").permitAll()
-        // (공개 GET 목록이 필요하면 여기에 추가)
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated()
     );
