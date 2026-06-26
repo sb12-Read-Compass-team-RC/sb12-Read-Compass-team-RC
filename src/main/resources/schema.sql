@@ -173,14 +173,15 @@ CREATE TABLE tb_reviews (
             REFERENCES tb_users (id)
             ON DELETE CASCADE,
 
-    -- 도서별 사용자 1명당 리뷰 1개
-    CONSTRAINT uk_tb_reviews_book_user UNIQUE (book_id, user_id),
-
     CONSTRAINT chk_tb_reviews_rating CHECK (rating BETWEEN 1 AND 5),
     CONSTRAINT chk_tb_reviews_like_cnt CHECK (like_cnt >= 0),
     CONSTRAINT chk_tb_reviews_comment_cnt CHECK (comment_cnt >= 0),
     CONSTRAINT chk_tb_reviews_content_not_blank CHECK (length(trim(content)) > 0)
 );
+
+CREATE UNIQUE INDEX uk_tb_reviews_book_user_not_deleted
+ON tb_reviews (book_id, user_id)
+WHERE is_deleted = false;
 
 -- =====================================================
 -- COMMENTS

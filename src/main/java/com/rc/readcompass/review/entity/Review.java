@@ -12,14 +12,7 @@ import lombok.experimental.SuperBuilder;
 
 
 @Entity
-@Table(
-    name = "tb_reviews",
-    // 도서당 사용자 1명의 리뷰 1개 제약
-    uniqueConstraints = @UniqueConstraint(
-        name = "uk_tb_reviews_book_user",
-        columnNames = {"book_id", "user_id"}
-    )
-)
+@Table(name = "tb_reviews")
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
