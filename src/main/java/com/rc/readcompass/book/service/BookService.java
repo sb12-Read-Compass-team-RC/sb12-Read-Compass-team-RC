@@ -1,7 +1,7 @@
 package com.rc.readcompass.book.service;
 
-import com.rc.readcompass.book.BinaryContent;
-import com.rc.readcompass.book.Book;
+import com.rc.readcompass.book.entity.BinaryContent;
+import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.dto.BookCreateRequest;
 import com.rc.readcompass.book.dto.BookDto;
 import com.rc.readcompass.book.dto.BookSearchRequest;

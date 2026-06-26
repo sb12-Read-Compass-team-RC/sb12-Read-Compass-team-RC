@@ -1,4 +1,4 @@
-package com.rc.readcompass.book;
+package com.rc.readcompass.book.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.rc.readcompass.common.domain.BaseEntity;

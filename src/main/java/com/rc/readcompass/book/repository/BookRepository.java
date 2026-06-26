@@ -1,6 +1,6 @@
 package com.rc.readcompass.book.repository;
 
-import com.rc.readcompass.book.Book;
+import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.repository.querydsl.BookQueryRepository;
 import java.util.Optional;
 import java.util.UUID;
