@@ -1,14 +1,16 @@
 package com.rc.readcompass.review.service;
 
+import com.rc.readcompass.exception.ErrorCode;
+import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.review.dto.ReviewLikeDto;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.entity.ReviewLike;
+import com.rc.readcompass.review.exception.ReviewException;
 import com.rc.readcompass.review.mapper.ReviewMapper;
 import com.rc.readcompass.review.repository.ReviewLikeRepository;
 import com.rc.readcompass.review.repository.ReviewRepository;
 import com.rc.readcompass.user.UserRepository;
 import com.rc.readcompass.user.User;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +30,10 @@ public class ReviewLikeService {
     @Transactional
     public ReviewLikeDto toggleLike(UUID reviewId, UUID requestUserId){
         Review review = reviewRepository.findActiveByIdForUpdate(reviewId)
-                .orElseThrow(()-> new EntityNotFoundException("리뷰를 찾을 수 없습니다."));
+                .orElseThrow(()-> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
 
         User user =  userRepository.findById(requestUserId)
-                .orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return reviewLikeRepository.findByReviewIdAndUserId(reviewId, requestUserId)
                 .map(reviewLike -> unlike(review, reviewLike,requestUserId))
