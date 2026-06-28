@@ -17,9 +17,9 @@ public interface CommentMapper {
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "deleted", ignore = true)
   @Mapping(target = "content", source = "request.content")
-  @Mapping(target = "user", source = "user")
   @Mapping(target = "review", source = "review")
-  Comment toEntity(CommentCreateRequest request, User user, Review review);
+  @Mapping(target = "user", source = "user")
+  Comment toEntity(CommentCreateRequest request, Review review, User user);
 
   @Mapping(target = "reviewId", source = "review.id")
   @Mapping(target = "userId", source = "user.id")
