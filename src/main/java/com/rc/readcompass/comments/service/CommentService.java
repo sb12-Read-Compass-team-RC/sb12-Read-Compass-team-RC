@@ -2,10 +2,12 @@ package com.rc.readcompass.comments.service;
 
 import com.rc.readcompass.comments.dto.CommentCreateRequest;
 import com.rc.readcompass.comments.dto.CommentDto;
+import com.rc.readcompass.comments.dto.CommentSearchRequest;
 import com.rc.readcompass.comments.dto.CommentUpdateRequest;
 import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.comments.mapper.CommentMapper;
 import com.rc.readcompass.comments.repository.CommentRepository;
+import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.review.entity.Review;
@@ -85,6 +87,13 @@ public class CommentService {
     }
 
     commentRepository.delete(comment);
+  }
+
+  @Transactional(readOnly = true)
+  public SliceCursorPageResponse<CommentDto> getComments(
+      CommentSearchRequest req
+  ){
+    return commentRepository.findCommentsByReviewId(req);
   }
 
 }
