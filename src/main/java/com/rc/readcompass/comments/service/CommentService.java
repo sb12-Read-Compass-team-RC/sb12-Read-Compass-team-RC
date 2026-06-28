@@ -2,6 +2,7 @@ package com.rc.readcompass.comments.service;
 
 import com.rc.readcompass.comments.dto.CommentCreateRequest;
 import com.rc.readcompass.comments.dto.CommentDto;
+import com.rc.readcompass.comments.dto.CommentUpdateRequest;
 import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.comments.mapper.CommentMapper;
 import com.rc.readcompass.comments.repository.CommentRepository;
@@ -11,6 +12,7 @@ import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.repository.ReviewRepository;
 import com.rc.readcompass.user.User;
 import com.rc.readcompass.user.UserRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,24 @@ public class CommentService {
     Comment comment = commentMapper.toEntity(request, review, user);
 
     commentRepository.save(comment);
+
+    return commentMapper.toResponse(comment);
+  }
+
+  @Transactional
+  public CommentDto update(
+      UUID commentId,
+      UUID userId,
+      CommentUpdateRequest request
+  ){
+    Comment comment = commentRepository.findByIdAndDeletedFalse(commentId)
+        .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+    if (!comment.getUser().getId().equals(userId)){
+      throw new CustomException(ErrorCode.COMMENT_FORBIDDEN);
+    }
+
+    comment.updateContent(request.content());
 
     return commentMapper.toResponse(comment);
   }
