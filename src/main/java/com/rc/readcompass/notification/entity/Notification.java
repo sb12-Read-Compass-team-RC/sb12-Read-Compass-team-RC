@@ -47,8 +47,6 @@ public class Notification extends BaseEntity {
      * 알림 확인 처리
      */
     public void confirm() {
-        if (!confirmed) {
-            this.confirmed = true;
-        }
+        this.confirmed = true;
     }
 }
