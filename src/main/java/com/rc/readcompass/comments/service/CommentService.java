@@ -28,15 +28,12 @@ public class CommentService {
 
   @Transactional
   public CommentDto register(CommentCreateRequest request){
-
     Review review = reviewRepository.findByIdAndDeletedFalse(request.reviewId())
         .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
     Comment comment = commentMapper.toEntity(request, review, user);
-
     commentRepository.save(comment);
 
     return commentMapper.toResponse(comment);
@@ -58,6 +55,36 @@ public class CommentService {
     comment.updateContent(request.content());
 
     return commentMapper.toResponse(comment);
+  }
+
+  @Transactional
+  public void delete(
+      UUID commentId,
+      UUID userId
+  ){
+    Comment comment = commentRepository.findByIdAndDeletedFalse(commentId)
+        .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+    if (!comment.getUser().getId().equals(userId)){
+      throw new CustomException(ErrorCode.COMMENT_FORBIDDEN);
+    }
+
+    comment.softDelete();
+  }
+
+  @Transactional
+  public void hardDelete(
+      UUID commentId,
+      UUID userId
+  ){
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+    if (!comment.getUser().getId().equals(userId)){
+      throw new CustomException(ErrorCode.COMMENT_FORBIDDEN);
+    }
+
+    commentRepository.delete(comment);
   }
 
 }
