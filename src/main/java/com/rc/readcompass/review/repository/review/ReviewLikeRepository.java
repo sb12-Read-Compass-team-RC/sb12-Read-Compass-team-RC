@@ -1,6 +1,5 @@
-package com.rc.readcompass.review.repository;
+package com.rc.readcompass.review.repository.review;
 
-import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.entity.ReviewLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package com.rc.readcompass.review.repository;
+package com.rc.readcompass.review.repository.review;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
