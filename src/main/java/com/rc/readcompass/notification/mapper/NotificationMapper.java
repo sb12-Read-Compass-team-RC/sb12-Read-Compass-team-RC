@@ -5,7 +5,6 @@ import com.rc.readcompass.notification.entity.Notification;
 import com.rc.readcompass.notification.entity.NotificationType;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.user.User;
-import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,23 +13,21 @@ public interface NotificationMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "user", source = "user")
+  @Mapping(target = "confirmedAt", ignore = true)
   @Mapping(target = "review", source = "review")
+  @Mapping(target = "user", source = "user")
   @Mapping(target = "message", source = "message")
   @Mapping(target = "notiType", source = "notiType")
   Notification toEntity(
-      User user,
       Review review,
+      User user,
       String message,
       NotificationType notiType
   );
 
-  @Mapping(target = "userId", source = "user.id")
   @Mapping(target = "reviewId", source = "review.id")
   @Mapping(target = "reviewContent", source = "review.content")
+  @Mapping(target = "userId", source = "user.id")
   NotificationDto toResponse(Notification notification);
-
-  List<NotificationDto> toResponseList(List<Notification> notifications);
-
 
 }
