@@ -1,5 +1,6 @@
 package com.rc.readcompass.book.dto;
 
+import com.rc.readcompass.common.PeriodType;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -9,11 +10,10 @@ public record PopularBookDto(
     String title,
     String author,
     String thumbnailUrl,
-    String period,
-    long rank,
-    double score,
-    long reviewCount,
-    double rating,
+    PeriodType period,
+    Long rank,          // int64
+    Double score,
+    Long reviewCount,   // int64
+    Double rating,
     Instant createdAt
-) {
-}
+) {}
