@@ -51,17 +51,7 @@ INSERT INTO tb_books (id, title, author, description, publisher, published_date,
 -- BINARY CONTENT (도서 썸네일)
 -- =====================================================
 INSERT INTO tb_binary_content (id, book_id, origin_file_url, renamed_file_url, size, content_type, created_at) VALUES
-('f0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'https://cdn.booklog.com/origin/채식주의자.jpg',  'https://cdn.booklog.com/books/b0001.jpg', 245120, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'https://cdn.booklog.com/origin/소년이온다.jpg',  'https://cdn.booklog.com/books/b0002.jpg', 312400, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'https://cdn.booklog.com/origin/김지영.jpg',      'https://cdn.booklog.com/books/b0003.jpg', 198500, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', 'https://cdn.booklog.com/origin/사피엔스.jpg',    'https://cdn.booklog.com/books/b0004.jpg', 278300, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', 'https://cdn.booklog.com/origin/총균쇠.jpg',      'https://cdn.booklog.com/books/b0005.jpg', 265000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'https://cdn.booklog.com/origin/코스모스.jpg',    'https://cdn.booklog.com/books/b0006.jpg', 320000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000007', 'https://cdn.booklog.com/origin/클린코드.jpg',    'https://cdn.booklog.com/books/b0007.jpg', 290000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000008', 'https://cdn.booklog.com/origin/미움받을용기.jpg','https://cdn.booklog.com/books/b0008.jpg', 210000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000009', 'b0000000-0000-0000-0000-000000000009', 'https://cdn.booklog.com/origin/돈의심리학.jpg',  'https://cdn.booklog.com/books/b0009.jpg', 230000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000010', 'b0000000-0000-0000-0000-000000000010', 'https://cdn.booklog.com/origin/어린왕자.jpg',    'https://cdn.booklog.com/books/b0010.jpg', 185000, 'image/jpeg', NOW());
-
+('f0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'https://cdn.booklog.com/origin/sample.jpg',  '1.jpg', 245120, 'image/jpeg', NOW());
 
 -- =====================================================
 -- REVIEWS
