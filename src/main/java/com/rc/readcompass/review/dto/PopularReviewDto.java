@@ -2,6 +2,7 @@ package com.rc.readcompass.review.dto;
 
 import com.rc.readcompass.common.PeriodType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public record PopularReviewDto(
         PeriodType period,
         Instant createdAt,
         Long rank,
-        Double score,
+        BigDecimal score,
         Long likeCount,
         Long commentCount
 ) {

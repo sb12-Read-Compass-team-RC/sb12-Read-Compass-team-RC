@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,8 +37,9 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewRanking extends BaseEntity {
 
-    @Column(name = "review_id", nullable = false, updatable = false, columnDefinition = "uuid")
-    private UUID reviewId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id", nullable = false)
+    private Review review;
 
     @NotNull
     @Enumerated(EnumType.STRING)
