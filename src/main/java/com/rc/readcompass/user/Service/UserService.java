@@ -81,27 +81,4 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         userRepository.delete(user);
     }
-
-    // GET /api/users/power - 파워유저 목록 조회
-    @Transactional(readOnly = true)
-    public CursorPageResponsePowerUserDto getPowerUsers(
-            PeriodType period,
-            String cursor,
-            Instant after,
-            int limit
-    ) {
-        List<UserRanking> rankings = userRankingRepository.findAll();
-        List<PowerUserDto> content = rankings.stream()
-                .map(userMapper::toPowerUserDto)
-                .toList();
-
-        return userMapper.toCursorPageResponse(
-                content,
-                null,
-                null,
-                limit,
-                (long) content.size(),
-                false
-        );
-    }
 }
