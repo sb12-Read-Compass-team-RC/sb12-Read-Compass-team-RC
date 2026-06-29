@@ -4,6 +4,7 @@ import com.rc.readcompass.common.domain.BaseEntity;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +40,13 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private boolean confirmed = false;
 
+    /**
+     * 알림을 최초로 확인한 시각입니다.
+     * 읽지 않은 경우에는 null입니다.
+     */
+    @Column(name = "confirmed_at")
+    private Instant confirmedAt;
+
     // =====================================================
     // 도메인 메서드
     // =====================================================
@@ -48,5 +56,6 @@ public class Notification extends BaseEntity {
      */
     public void confirm() {
         this.confirmed = true;
+        this.confirmedAt = Instant.now();
     }
 }
