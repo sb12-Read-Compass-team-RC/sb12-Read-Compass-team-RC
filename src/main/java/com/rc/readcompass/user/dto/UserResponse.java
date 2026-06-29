@@ -1,6 +1,6 @@
 package com.rc.readcompass.user.dto;
 
-import com.rc.readcompass.user.Entity.UserRole.User;
+import com.rc.readcompass.user.User;
 import java.time.Instant;
 import java.util.UUID;
 

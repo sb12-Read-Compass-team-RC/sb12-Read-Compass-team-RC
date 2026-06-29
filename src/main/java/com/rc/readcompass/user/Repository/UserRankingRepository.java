@@ -1,6 +1,6 @@
 package com.rc.readcompass.user.Repository;
 
-import com.rc.readcompass.user.Entity.UserRanking;
+import com.rc.readcompass.user.UserRanking;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

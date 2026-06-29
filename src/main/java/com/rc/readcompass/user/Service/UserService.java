@@ -2,16 +2,17 @@ package com.rc.readcompass.user.Service;
 
 import com.rc.readcompass.common.PeriodType;
 import com.rc.readcompass.oauth2.dto.AuthProvider;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.UserRole;
 import com.rc.readcompass.user.Mapper.UserMapper;
 import com.rc.readcompass.user.Repository.UserRankingRepository;
-import com.rc.readcompass.user.Repository.UserRepository;
-import com.rc.readcompass.user.Entity.UserRanking;
+import com.rc.readcompass.user.UserRepository;
 import com.rc.readcompass.user.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.UserRanking;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,7 +37,7 @@ public class UserService {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
 
-        UserRole.User user = UserRole.User.builder()
+        User user = User.builder()
                 .email(request.email())
                 .nickname(request.nickname())
                 .password(passwordEncoder.encode(request.password()))
@@ -51,7 +52,7 @@ public class UserService {
     // GET /api/users/{userId} - 사용자 조회
     @Transactional(readOnly = true)
     public UserResponse getUser(UUID userId) {
-        UserRole.User user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return userMapper.toResponse(user);
     }
@@ -59,7 +60,7 @@ public class UserService {
     // PATCH /api/users/{userId} - 사용자 정보 수정
     @Transactional
     public UserResponse updateUser(UUID userId, UserUpdateRequest request) {
-        UserRole.User user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         user.updateNickname(request.nickname());
         return userMapper.toResponse(user);
@@ -68,7 +69,7 @@ public class UserService {
     // DELETE /api/users/{userId} - 논리 삭제
     @Transactional
     public void softDeleteUser(UUID userId) {
-        UserRole.User user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         user.softDelete();
     }
@@ -76,7 +77,7 @@ public class UserService {
     // DELETE /api/users/{userId}/hard - 물리 삭제
     @Transactional
     public void hardDeleteUser(UUID userId) {
-        UserRole.User user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         userRepository.delete(user);
     }

@@ -1,8 +1,8 @@
 package com.rc.readcompass.user.Controller;
 
 import com.rc.readcompass.oauth2.dto.AuthProvider;
-import com.rc.readcompass.user.Repository.UserRepository;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.UserRepository;
+import com.rc.readcompass.user.UserRole;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.rc.readcompass.user.User;
 
 /**
  * 아주 간단한 회원가입 컨트롤러.
@@ -39,7 +40,7 @@ public class UserController {
         }
 
         // 저장
-        UserRole.User user = UserRole.User.builder()
+        User user = User.builder()
             .email(request.getEmail())
             .nickname(request.getNickname())
             .password(passwordEncoder.encode(request.getPassword()))

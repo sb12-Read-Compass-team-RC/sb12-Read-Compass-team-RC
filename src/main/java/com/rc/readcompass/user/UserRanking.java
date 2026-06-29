@@ -52,6 +52,18 @@ public class UserRanking extends BaseEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal score;
 
+    @Column(nullable = false, length = 50)
+    private String nickname;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal reviewScoreSum;
+
+    @Column(nullable = false)
+    private long likeCount;
+
+    @Column(nullable = false)
+    private long commentCount;
+
     @Column(nullable = false)
     private Instant calculatedAt;
 }

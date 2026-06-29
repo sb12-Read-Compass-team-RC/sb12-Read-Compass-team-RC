@@ -1,7 +1,7 @@
 package com.rc.readcompass.user.Mapper;
 
-import com.rc.readcompass.user.Entity.UserRole.User;
-import com.rc.readcompass.user.Entity.UserRanking;
+import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.UserRanking;
 import com.rc.readcompass.user.dto.PowerUserDto;
 import com.rc.readcompass.user.dto.UserResponse;
 import org.springframework.stereotype.Component;
