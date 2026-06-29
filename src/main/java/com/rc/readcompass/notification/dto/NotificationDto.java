@@ -10,7 +10,8 @@ public record NotificationDto(
     String reviewContent,
     String message,
     boolean confirmed,
-    Instant createdAt
+    Instant createdAt,
+    Instant confirmedAt
 ) {
 
 }
