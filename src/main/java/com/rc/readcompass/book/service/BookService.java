@@ -13,12 +13,19 @@ import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.storage.FileStorage;
+import com.rc.readcompass.book.client.NaverBookClient;
+import com.rc.readcompass.book.dto.NaverBookDto;
+import com.rc.readcompass.book.client.OcrSpaceClient;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +35,8 @@ public class BookService {
   private final BinaryContentRepository binaryContentRepository;
   private final BookMapper bookMapper;
   private final FileStorage fileStorage;
+  private final NaverBookClient naverBookClient;
+  private final OcrSpaceClient ocrSpaceClient;
 
   @Transactional
   public BookDto create(BookCreateRequest request, MultipartFile thumbnail) {
@@ -133,10 +142,26 @@ public class BookService {
     bookRepository.delete(book);
   }
 
+  @Transactional(readOnly = true)
+  public String extractIsbnFromImage(MultipartFile image) {
+    String parsedText = ocrSpaceClient.extractText(image);
+    return extractIsbn(parsedText);
+  }
+
   private Book findActiveBook(UUID id) {
     return bookRepository.findByIdAndDeletedFalse(id)
         .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
             .addDetail("bookId=" + id));
+  }
+
+  @Transactional(readOnly = true)
+  public NaverBookDto getBookInfoByIsbn(String isbn) {
+    if (isbn == null || isbn.isBlank()) {
+      throw new CustomException(ErrorCode.INVALID_REQUEST)
+          .addDetail("isbn은 필수입니다.");
+    }
+
+    return naverBookClient.searchByIsbn(isbn.trim());
   }
 
   private BinaryContent saveThumbnail(Book book, MultipartFile thumbnail) {
@@ -201,5 +226,38 @@ public class BookService {
         dto.createdAt(),
         dto.updatedAt()
     );
+  }
+
+  private String extractIsbn(String parsedText) {
+    Pattern isbnPattern = Pattern.compile(
+        "ISBN\\s*([0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?"
+            + "[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?"
+            + "[0-9Xx]?[-\\s]?[0-9Xx]?[-\\s]?[0-9Xx]?)",
+        Pattern.CASE_INSENSITIVE
+    );
+
+    Matcher matcher = isbnPattern.matcher(parsedText);
+
+    if (matcher.find()) {
+      String isbn = matcher.group(1).replaceAll("[^0-9Xx]", "");
+
+      if (isbn.length() == 10 || isbn.length() == 13) {
+        return isbn;
+      }
+    }
+
+    Pattern fallbackPattern = Pattern.compile("(97[89][0-9\\s-]{10,20})");
+    Matcher fallbackMatcher = fallbackPattern.matcher(parsedText);
+
+    if (fallbackMatcher.find()) {
+      String isbn = fallbackMatcher.group(1).replaceAll("[^0-9]", "");
+
+      if (isbn.length() == 13) {
+        return isbn;
+      }
+    }
+
+    throw new CustomException(ErrorCode.INVALID_REQUEST)
+        .addDetail("OCR 결과에서 ISBN을 찾을 수 없습니다.");
   }
 }

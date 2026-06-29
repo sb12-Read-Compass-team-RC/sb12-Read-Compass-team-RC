@@ -247,6 +247,7 @@ CREATE TABLE tb_notifications (
     noti_type       VARCHAR(30) NOT NULL,
     confirmed       BOOLEAN DEFAULT false NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    confirmed_at    TIMESTAMPTZ NULL,
 
     CONSTRAINT pk_tb_notifications PRIMARY KEY (id),
 

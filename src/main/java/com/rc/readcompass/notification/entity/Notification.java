@@ -1,32 +1,33 @@
-package com.rc.readcompass.notification;
+package com.rc.readcompass.notification.entity;
 
 import com.rc.readcompass.common.domain.BaseEntity;
+import com.rc.readcompass.review.entity.Review;
+import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.util.UUID;
-
-/**
- * 알림.
- * schema에 updated_at 없음 — BaseEntity 상속.
- * 확인 완료 후 1주일 경과 시 배치로 물리 삭제됨.
- */
 @Entity
 @Table(name = "tb_notifications")
 @Getter
-@SuperBuilder
+@SuperBuilder @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseEntity {
 
-    @Column(nullable = false, columnDefinition = "uuid")
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    private User user;
 
-    @Column(nullable = false, columnDefinition = "uuid")
-    private UUID reviewId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id", nullable = false)
+    @ToString.Exclude
+    private Review review;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
@@ -39,11 +40,22 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private boolean confirmed = false;
 
+    /**
+     * 알림을 최초로 확인한 시각입니다.
+     * 읽지 않은 경우에는 null입니다.
+     */
+    @Column(name = "confirmed_at")
+    private Instant confirmedAt;
+
     // =====================================================
     // 도메인 메서드
     // =====================================================
 
+    /**
+     * 알림 확인 처리
+     */
     public void confirm() {
         this.confirmed = true;
+        this.confirmedAt = Instant.now();
     }
 }
