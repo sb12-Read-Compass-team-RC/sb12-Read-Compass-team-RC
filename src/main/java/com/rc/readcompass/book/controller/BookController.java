@@ -5,9 +5,12 @@ import com.rc.readcompass.book.dto.BookCreateRequest;
 import com.rc.readcompass.book.dto.BookDto;
 import com.rc.readcompass.book.dto.BookSearchRequest;
 import com.rc.readcompass.book.dto.BookUpdateRequest;
+import com.rc.readcompass.book.dto.PopularBookDto;
 import com.rc.readcompass.book.service.BookService;
 import com.rc.readcompass.book.dto.NaverBookDto;
 
+import com.rc.readcompass.book.service.PopularBookService;
+import com.rc.readcompass.common.PeriodType;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
@@ -37,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BookController {
 
   private final BookService bookService;
+  private final PopularBookService popularBookService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BookDto> createBook(
@@ -103,7 +107,27 @@ public class BookController {
     return ResponseEntity.noContent().build();
   }
 
-  private Order parseDirection(String direction ) {
+  @GetMapping("/popular")
+  public ResponseEntity<SliceCursorPageResponse<PopularBookDto>> getPopularBooks(
+      @RequestParam PeriodType period,
+      @RequestParam String direction,
+      @RequestParam(required = false) String cursor,
+      @RequestParam(required = false)
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
+      @RequestParam Integer limit
+  ) {
+    return ResponseEntity.ok(
+        popularBookService.getPopularBooks(
+            period,
+            parseDirection(direction),
+            cursor,
+            after,
+            limit
+        )
+    );
+  }
+
+  private Order parseDirection(String direction) {
     try {
       return Order.valueOf(direction.toUpperCase());
     } catch (IllegalArgumentException | NullPointerException e) {
