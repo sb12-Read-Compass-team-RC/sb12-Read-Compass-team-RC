@@ -1,6 +1,5 @@
 package com.rc.readcompass.book.service;
 
-import com.rc.readcompass.book.client.NaverBookClient;
 import com.rc.readcompass.book.entity.BinaryContent;
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.dto.BookCreateRequest;
@@ -16,6 +15,9 @@ import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.storage.FileStorage;
 import com.rc.readcompass.book.client.NaverBookClient;
 import com.rc.readcompass.book.dto.NaverBookDto;
+import com.rc.readcompass.book.client.OcrSpaceClient;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +36,7 @@ public class BookService {
   private final BookMapper bookMapper;
   private final FileStorage fileStorage;
   private final NaverBookClient naverBookClient;
+  private final OcrSpaceClient ocrSpaceClient;
 
   @Transactional
   public BookDto create(BookCreateRequest request, MultipartFile thumbnail) {
@@ -139,6 +142,12 @@ public class BookService {
     bookRepository.delete(book);
   }
 
+  @Transactional(readOnly = true)
+  public String extractIsbnFromImage(MultipartFile image) {
+    String parsedText = ocrSpaceClient.extractText(image);
+    return extractIsbn(parsedText);
+  }
+
   private Book findActiveBook(UUID id) {
     return bookRepository.findByIdAndDeletedFalse(id)
         .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
@@ -217,5 +226,38 @@ public class BookService {
         dto.createdAt(),
         dto.updatedAt()
     );
+  }
+
+  private String extractIsbn(String parsedText) {
+    Pattern isbnPattern = Pattern.compile(
+        "ISBN\\s*([0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?"
+            + "[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?[0-9Xx][-\\s]?"
+            + "[0-9Xx]?[-\\s]?[0-9Xx]?[-\\s]?[0-9Xx]?)",
+        Pattern.CASE_INSENSITIVE
+    );
+
+    Matcher matcher = isbnPattern.matcher(parsedText);
+
+    if (matcher.find()) {
+      String isbn = matcher.group(1).replaceAll("[^0-9Xx]", "");
+
+      if (isbn.length() == 10 || isbn.length() == 13) {
+        return isbn;
+      }
+    }
+
+    Pattern fallbackPattern = Pattern.compile("(97[89][0-9\\s-]{10,20})");
+    Matcher fallbackMatcher = fallbackPattern.matcher(parsedText);
+
+    if (fallbackMatcher.find()) {
+      String isbn = fallbackMatcher.group(1).replaceAll("[^0-9]", "");
+
+      if (isbn.length() == 13) {
+        return isbn;
+      }
+    }
+
+    throw new CustomException(ErrorCode.INVALID_REQUEST)
+        .addDetail("OCR 결과에서 ISBN을 찾을 수 없습니다.");
   }
 }
