@@ -1,4 +1,4 @@
-package com.rc.readcompass.notification;
+package com.rc.readcompass.notification.entity;
 
 public enum NotificationType {
     /** 내 리뷰에 좋아요 */
