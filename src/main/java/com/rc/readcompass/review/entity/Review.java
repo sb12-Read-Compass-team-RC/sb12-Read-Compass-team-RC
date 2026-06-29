@@ -1,8 +1,8 @@
 package com.rc.readcompass.review.entity;
 
-import com.rc.readcompass.book.Book;
+import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -12,14 +12,7 @@ import lombok.experimental.SuperBuilder;
 
 
 @Entity
-@Table(
-    name = "tb_reviews",
-    // 도서당 사용자 1명의 리뷰 1개 제약
-    uniqueConstraints = @UniqueConstraint(
-        name = "uk_tb_reviews_book_user",
-        columnNames = {"book_id", "user_id"}
-    )
-)
+@Table(name = "tb_reviews")
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,7 +24,7 @@ public class Review extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserRole.User user;
+    private User user;
 
     @NotBlank
     @Column(nullable = false, columnDefinition = "TEXT")

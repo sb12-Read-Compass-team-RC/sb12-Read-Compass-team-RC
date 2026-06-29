@@ -1,6 +1,6 @@
 package com.rc.readcompass.book.dto;
 
-import com.rc.readcompass.book.BookCategory;
+import com.rc.readcompass.book.entity.BookCategory;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;

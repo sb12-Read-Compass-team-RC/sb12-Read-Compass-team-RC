@@ -1,7 +1,7 @@
 package com.rc.readcompass.review.entity;
 
 import com.rc.readcompass.common.domain.BaseEntity;
-import com.rc.readcompass.user.Entity.UserRole;
+import com.rc.readcompass.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,5 +32,5 @@ public class ReviewLike extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
-    private UserRole.User user;
+    private User user;
 }
