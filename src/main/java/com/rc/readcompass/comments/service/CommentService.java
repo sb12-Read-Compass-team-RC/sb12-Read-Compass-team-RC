@@ -11,7 +11,7 @@ import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.review.repository.ReviewRepository;
+import com.rc.readcompass.review.repository.review.ReviewRepository;
 import com.rc.readcompass.user.User;
 import com.rc.readcompass.user.UserRepository;
 import java.util.UUID;
