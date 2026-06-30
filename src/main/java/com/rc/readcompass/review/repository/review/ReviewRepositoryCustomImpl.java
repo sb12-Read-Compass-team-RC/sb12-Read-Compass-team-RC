@@ -1,10 +1,12 @@
 package com.rc.readcompass.review.repository.review;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.rc.readcompass.book.entity.QBinaryContent;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
@@ -13,6 +15,7 @@ import com.rc.readcompass.review.dto.ReviewSearchRequest;
 import com.rc.readcompass.review.entity.QReview;
 import com.rc.readcompass.review.entity.QReviewLike;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -27,6 +30,12 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     private final QReview r = QReview.review;
     private final QReviewLike myLike = new QReviewLike("myLike");
     private final QBinaryContent binaryContent = new QBinaryContent("binaryContent");
+
+    @Value("${app.backend.base-url}")
+    private String backendBaseUrl;
+
+    @Value("${app.storage.attachment-url-path:/attachments}")
+    private String attachmentUrlPath;
 
     @Override
     public SliceCursorPageResponse<ReviewDto> searchCursorSortedFlat(ReviewSearchRequest request) {
@@ -137,6 +146,13 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         // controller / service에서 필수 검증 실시
 
         BooleanExpression likedByMeExpression = myLike.id.isNotNull();
+        Expression<String> bookThumbnailUrlExpression =
+                Expressions.stringTemplate(
+                        "case when {0} is null then null else concat({1}, {2}, '/', {0}) end",
+                        binaryContent.renamedFileUrl,
+                        Expressions.constant(backendBaseUrl),
+                        Expressions.constant(attachmentUrlPath)
+                );
 
         List<ReviewDto> rowsPlusOne = queryFactory
                 .select(Projections.constructor(
@@ -146,7 +162,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                         r.book.title,
 
 //                      썸네일 조인 구조에 맞게 교체  binaryContent.renamedFileUrl,
-                        binaryContent.renamedFileUrl,
+                        bookThumbnailUrlExpression,
 
                         r.user.id,
                         r.user.nickname,
