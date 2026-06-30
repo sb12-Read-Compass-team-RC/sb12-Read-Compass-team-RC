@@ -1,7 +1,6 @@
-package com.rc.readcompass.review.repository;
+package com.rc.readcompass.review.repository.review;
 
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
-import com.rc.readcompass.review.dto.CursorPageResponseReviewDto;
 import com.rc.readcompass.review.dto.ReviewDto;
 import com.rc.readcompass.review.dto.ReviewSearchRequest;
 

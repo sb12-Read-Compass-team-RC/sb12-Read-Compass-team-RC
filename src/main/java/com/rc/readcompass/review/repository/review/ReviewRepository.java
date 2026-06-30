@@ -1,4 +1,4 @@
-package com.rc.readcompass.review.repository;
+package com.rc.readcompass.review.repository.review;
 
 import com.rc.readcompass.review.entity.Review;
 import jakarta.persistence.LockModeType;

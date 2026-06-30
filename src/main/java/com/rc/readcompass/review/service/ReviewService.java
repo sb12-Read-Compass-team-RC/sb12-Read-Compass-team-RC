@@ -5,16 +5,20 @@ import com.rc.readcompass.book.entity.BinaryContent;
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.repository.BinaryContentRepository;
 import com.rc.readcompass.book.repository.BookRepository;
+import com.rc.readcompass.comments.entity.Comment;
+import com.rc.readcompass.comments.repository.CommentRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.review.dto.*;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.entity.ReviewLike;
+import com.rc.readcompass.review.entity.ReviewRanking;
 import com.rc.readcompass.review.exception.ReviewException;
 import com.rc.readcompass.review.mapper.ReviewMapper;
-import com.rc.readcompass.review.repository.ReviewLikeRepository;
-import com.rc.readcompass.review.repository.ReviewRepository;
+import com.rc.readcompass.review.repository.review.ReviewLikeRepository;
+import com.rc.readcompass.review.repository.review.ReviewRepository;
+import com.rc.readcompass.review.repository.reviewranking.ReviewRankingRepository;
 import com.rc.readcompass.user.User;
 import com.rc.readcompass.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,10 @@ public class ReviewService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final CommentRepository commentRepository;
+    private final ReviewRankingRepository reviewRankingRepository;
+//    private final NotificationRepository notificationRepository;
+
 
     private final ReviewMapper reviewMapper;
 
@@ -121,20 +129,22 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Book book = getBook(review.getBook().getId());
-
-        int rating = review.getRating();
         validateOwner(review, requestUserId);
 
-        // 같이 사라져야 할 것들
-        ReviewLike reviewLike = reviewLikeRepository
-                .findByReviewIdAndUserId(reviewId, requestUserId)
-                .orElse(null);
-        if(reviewLike != null) {reviewLikeRepository.delete(reviewLike);}
+        if(!review.isDeleted()){
+            throw new ReviewException(ErrorCode.REVIEW_NOT_DELETED);
+        }
 
-        // TODO: 리뷰 댓글, 관련 알림, 인기 리뷰 랭킹 스냅샷 조회 및 삭제하기.
+        Book book = getBook(review.getBook().getId());
+        int rating = review.getRating();
 
-        reviewRepository.delete(review);
+        // 같이 사라져야 할 것들 좋아요, 댓글, 알림, 랭킹 스냅샷
+        reviewLikeRepository.deleteAllByReviewId(reviewId);
+        commentRepository.deleteAllByReviewId(reviewId);
+//        notificationRepository.deleteAllByReviewId(reviewId);
+        reviewRankingRepository.deleteAllByReviewId(reviewId);
+
+        reviewRepository .delete(review);
 
         book.removeReview(rating);
     }
