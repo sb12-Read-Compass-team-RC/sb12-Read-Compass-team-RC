@@ -56,6 +56,10 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
       where.and(keywordCondition);
     }
 
+    if (request.category() != null) {
+      where.and(b.category.eq(request.category()));
+    }
+
     Order order = getOrder(request);
     int size = getSize(request);
     String sort = getSort(request.sort());
