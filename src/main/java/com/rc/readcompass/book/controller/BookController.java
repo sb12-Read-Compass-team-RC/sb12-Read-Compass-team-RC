@@ -8,6 +8,7 @@ import com.rc.readcompass.book.dto.BookUpdateRequest;
 import com.rc.readcompass.book.dto.PopularBookDto;
 import com.rc.readcompass.book.service.BookService;
 import com.rc.readcompass.book.dto.NaverBookDto;
+import com.rc.readcompass.book.entity.BookCategory;
 
 import com.rc.readcompass.book.service.PopularBookService;
 import com.rc.readcompass.common.PeriodType;
@@ -73,6 +74,7 @@ public class BookController {
   @GetMapping
   public ResponseEntity<SliceCursorPageResponse<BookDto>> searchBooks(
       @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) BookCategory category,
       @RequestParam(defaultValue = "title") String orderBy,
       @RequestParam(defaultValue = "DESC") String direction,
       @RequestParam(required = false) String cursor,
@@ -82,6 +84,7 @@ public class BookController {
   ) {
     BookSearchRequest request = BookSearchRequest.builder()
         .keyword(keyword)
+        .category(category)
         .sort(orderBy)
         .direction(parseDirection(direction))
         .cursor(cursor)

@@ -1,6 +1,7 @@
 package com.rc.readcompass.book.dto;
 
 import com.querydsl.core.types.Order;
+import com.rc.readcompass.book.entity.BookCategory;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.time.Instant;
 @Builder
 public record BookSearchRequest(
     String keyword,
+    BookCategory category,
 
     String sort,       // title / publishedDate / rating / reviewCount
     Order direction,   // ASC / DESC
