@@ -9,13 +9,6 @@ public record NaverBookDto(
     String publisher,
     LocalDate publishedDate,
     String isbn,
-
-    byte[] thumbnailImage
-    /*
-      Naver image URL
-        → 이미지 다운로드
-        → byte[] 변환
-        → thumbnailImage에 담기
-     */
+    String thumbnailUrl
 ) {
 }

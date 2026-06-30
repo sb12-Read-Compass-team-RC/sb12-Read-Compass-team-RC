@@ -16,6 +16,13 @@ import com.rc.readcompass.storage.FileStorage;
 import com.rc.readcompass.book.client.NaverBookClient;
 import com.rc.readcompass.book.dto.NaverBookDto;
 import com.rc.readcompass.book.client.OcrSpaceClient;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +56,10 @@ public class BookService {
     Book savedBook = bookRepository.save(book);
 
     BinaryContent savedThumbnail = saveThumbnail(savedBook, thumbnail);
+
+    if (savedThumbnail == null) {
+      savedThumbnail = saveThumbnailFromUrl(savedBook, request.thumbnailUrl());
+    }
 
     return bookMapper.toDto(
         savedBook,
@@ -148,12 +159,6 @@ public class BookService {
     return extractIsbn(parsedText);
   }
 
-  private Book findActiveBook(UUID id) {
-    return bookRepository.findByIdAndDeletedFalse(id)
-        .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
-            .addDetail("bookId=" + id));
-  }
-
   @Transactional(readOnly = true)
   public NaverBookDto getBookInfoByIsbn(String isbn) {
     if (isbn == null || isbn.isBlank()) {
@@ -162,6 +167,12 @@ public class BookService {
     }
 
     return naverBookClient.searchByIsbn(isbn.trim());
+  }
+
+  private Book findActiveBook(UUID id) {
+    return bookRepository.findByIdAndDeletedFalse(id)
+        .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND)
+            .addDetail("bookId=" + id));
   }
 
   private BinaryContent saveThumbnail(Book book, MultipartFile thumbnail) {
@@ -179,6 +190,66 @@ public class BookService {
     binaryContent.assignBook(book);
 
     return binaryContentRepository.save(binaryContent);
+  }
+
+  private BinaryContent saveThumbnailFromUrl(Book book, String thumbnailUrl) {
+    if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
+      return null;
+    }
+
+    try {
+      MultipartFile file = downloadImageAsMultipartFile(thumbnailUrl);
+      return saveThumbnail(book, file);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  private MultipartFile downloadImageAsMultipartFile(String imageUrl) throws IOException {
+    HttpURLConnection con = (HttpURLConnection) URI.create(imageUrl).toURL().openConnection();
+    con.setRequestMethod("GET");
+    con.setConnectTimeout(3000);
+    con.setReadTimeout(5000);
+
+    int responseCode = con.getResponseCode();
+
+    if (responseCode != HttpURLConnection.HTTP_OK) {
+      throw new IOException("이미지 다운로드 실패");
+    }
+
+    String contentType = con.getContentType();
+    byte[] bytes;
+
+    try (InputStream inputStream = con.getInputStream()) {
+      bytes = inputStream.readAllBytes();
+    } finally {
+      con.disconnect();
+    }
+
+    String filename = createThumbnailFileName(imageUrl, contentType);
+
+    return new UrlImageMultipartFile(
+        "thumbnailImage",
+        filename,
+        contentType,
+        bytes
+    );
+  }
+
+  private String createThumbnailFileName(String imageUrl, String contentType) {
+    String extension = ".jpg";
+
+    if (contentType != null) {
+      if (contentType.contains("png")) {
+        extension = ".png";
+      } else if (contentType.contains("webp")) {
+        extension = ".webp";
+      } else if (contentType.contains("gif")) {
+        extension = ".gif";
+      }
+    }
+
+    return "naver-book-cover" + extension;
   }
 
   private void replaceThumbnail(Book book, MultipartFile thumbnail) {
@@ -259,5 +330,65 @@ public class BookService {
 
     throw new CustomException(ErrorCode.INVALID_REQUEST)
         .addDetail("OCR 결과에서 ISBN을 찾을 수 없습니다.");
+  }
+
+  private static class UrlImageMultipartFile implements MultipartFile {
+
+    private final String name;
+    private final String originalFilename;
+    private final String contentType;
+    private final byte[] content;
+
+    private UrlImageMultipartFile(
+        String name,
+        String originalFilename,
+        String contentType,
+        byte[] content
+    ) {
+      this.name = name;
+      this.originalFilename = originalFilename;
+      this.contentType = contentType;
+      this.content = content;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String getOriginalFilename() {
+      return originalFilename;
+    }
+
+    @Override
+    public String getContentType() {
+      return contentType;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return content == null || content.length == 0;
+    }
+
+    @Override
+    public long getSize() {
+      return content.length;
+    }
+
+    @Override
+    public byte[] getBytes() {
+      return content;
+    }
+
+    @Override
+    public InputStream getInputStream() {
+      return new ByteArrayInputStream(content);
+    }
+
+    @Override
+    public void transferTo(File dest) throws IOException {
+      Files.write(dest.toPath(), content);
+    }
   }
 }
