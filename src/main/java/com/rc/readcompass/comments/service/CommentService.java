@@ -36,6 +36,7 @@ public class CommentService {
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     Comment comment = commentMapper.toEntity(request, review, user);
     commentRepository.save(comment);
+    review.incrementCommentCount();
     return commentMapper.toResponse(comment);
   }
 
@@ -83,6 +84,7 @@ public class CommentService {
       throw new CustomException(ErrorCode.COMMENT_FORBIDDEN);
     }
     comment.softDelete();
+    comment.getReview().decrementCommentCount();
   }
 
   @Transactional
