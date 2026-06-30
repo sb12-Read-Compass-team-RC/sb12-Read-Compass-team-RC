@@ -9,7 +9,7 @@ public record CommentCreateRequest(
     @NotNull(message = "리뷰 ID는 필수입니다")
     UUID reviewId,
 
-    @NotNull(message = "작성자 ID는 필수입니다")
+    @NotNull(message = "사용자 ID는 필수입니다")
     UUID userId,
 
     @NotBlank(message = "댓글 내용은 필수입니다")
