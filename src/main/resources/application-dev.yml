@@ -39,3 +39,8 @@ app:
     secure: false
     same-site: Lax
     refresh-max-age: 300         # 5분(초)
+  storage:
+    attachment-path: .read-compass/storage/attachments
+    attachment-url-path: /attachments
+  backend:
+    base-url: http://localhost:8080
