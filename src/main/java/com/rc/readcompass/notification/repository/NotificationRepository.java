@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID>, NotificationQueryRepository {
   List<Notification> findByUserIdAndConfirmedFalse(UUID userId);
+  void deleteAllByReviewId(UUID reviewId);
 }
