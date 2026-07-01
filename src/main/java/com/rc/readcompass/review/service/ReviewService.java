@@ -9,6 +9,7 @@ import com.rc.readcompass.comments.repository.CommentRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
+import com.rc.readcompass.notification.repository.NotificationRepository;
 import com.rc.readcompass.review.dto.*;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.exception.ReviewException;
@@ -39,7 +40,7 @@ public class ReviewService {
     private final BinaryContentRepository binaryContentRepository;
     private final CommentRepository commentRepository;
     private final ReviewRankingRepository reviewRankingRepository;
-//    private final NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
 
     private final ReviewMapper reviewMapper;
 
@@ -134,17 +135,13 @@ public class ReviewService {
 
         validateOwner(review, requestUserId);
 
-        if(!review.isDeleted()){
-            throw new ReviewException(ErrorCode.REVIEW_NOT_DELETED);
-        }
-
         Book book = getBook(review.getBook().getId());
         int rating = review.getRating();
 
         // 같이 사라져야 할 것들 좋아요, 댓글, 알림, 랭킹 스냅샷
         reviewLikeRepository.deleteAllByReviewId(reviewId);
         commentRepository.deleteAllByReviewId(reviewId);
-//        notificationRepository.deleteAllByReviewId(reviewId);
+        notificationRepository.deleteAllByReviewId(reviewId);
         reviewRankingRepository.deleteAllByReviewId(reviewId);
 
         reviewRepository .delete(review);
