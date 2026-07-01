@@ -22,6 +22,7 @@ export default function FormContainer({
       category: "",
       thumbnailImage: undefined,
       thumbnailUrl: "",
+      thumbnailDeleted: false,
     },
   });
 

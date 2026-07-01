@@ -31,6 +31,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -118,6 +120,8 @@ public class BookService {
 
     if (hasFile(thumbnail)) {
       replaceThumbnail(book, thumbnail);
+    } else if (Boolean.TRUE.equals(request.thumbnailDeleted())) {
+      deleteThumbnail(book);
     }
 
     String thumbnailUrl = binaryContentRepository.findByBookId(id)
@@ -253,13 +257,50 @@ public class BookService {
   }
 
   private void replaceThumbnail(Book book, MultipartFile thumbnail) {
-    binaryContentRepository.findByBookId(book.getId())
-        .ifPresent(oldThumbnail -> {
-          fileStorage.delete(List.of(oldThumbnail));
-          binaryContentRepository.delete(oldThumbnail);
-        });
+    BinaryContent oldThumbnail = binaryContentRepository.findByBookId(book.getId())
+        .orElse(null);
 
-    saveThumbnail(book, thumbnail);
+    List<BinaryContent> savedFiles = fileStorage.save(List.of(thumbnail));
+
+    if (savedFiles.isEmpty()) {
+      return;
+    }
+
+    BinaryContent newThumbnail = savedFiles.get(0);
+
+    if (oldThumbnail == null) {
+      newThumbnail.assignBook(book);
+      binaryContentRepository.save(newThumbnail);
+    } else {
+      String oldRenamedFileUrl = oldThumbnail.getRenamedFileUrl();
+      String oldOriginFileUrl = oldThumbnail.getOriginFileUrl();
+      Long oldSize = oldThumbnail.getSize();
+      String oldContentType = oldThumbnail.getContentType();
+
+      oldThumbnail.updateFileInfo(newThumbnail);
+
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          BinaryContent oldFile = BinaryContent.builder()
+              .book(book)
+              .originFileUrl(oldOriginFileUrl)
+              .renamedFileUrl(oldRenamedFileUrl)
+              .size(oldSize)
+              .contentType(oldContentType)
+              .build();
+
+          fileStorage.delete(List.of(oldFile));
+        }
+
+        @Override
+        public void afterCompletion(int status) {
+          if (status == STATUS_ROLLED_BACK) {
+            fileStorage.delete(List.of(newThumbnail));
+          }
+        }
+      });
+    }
   }
 
   private boolean hasFile(MultipartFile file) {
@@ -297,6 +338,24 @@ public class BookService {
         dto.createdAt(),
         dto.updatedAt()
     );
+  }
+
+  private void deleteThumbnail(Book book) {
+    BinaryContent thumbnail = binaryContentRepository.findByBookId(book.getId())
+        .orElse(null);
+
+    if (thumbnail == null) {
+      return;
+    }
+
+    binaryContentRepository.delete(thumbnail);
+
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        fileStorage.delete(List.of(thumbnail));
+      }
+    });
   }
 
   private String extractIsbn(String parsedText) {
@@ -350,6 +409,8 @@ public class BookService {
       this.contentType = contentType;
       this.content = content;
     }
+
+
 
     @Override
     public String getName() {

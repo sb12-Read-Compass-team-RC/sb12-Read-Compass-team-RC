@@ -49,7 +49,7 @@ export default function FormFields({
   const navigate = useNavigate();
 
   const watchedThumbnailUrl = watch("thumbnailUrl");
-  const thumbnailValue = watchedThumbnailUrl || data?.thumbnailUrl || "";
+  const thumbnailValue = watchedThumbnailUrl ?? data?.thumbnailUrl ?? "";
   const tooltipErrorImg = getImagePath("/icon/ic_exclamation-circle.svg");
 
   const showTooltip = useTooltipStore(state => state.showTooltip);
@@ -70,7 +70,8 @@ export default function FormFields({
       publishedDate: data.publishedDate,
       description: data.description,
       category: data.category,
-      thumbnailUrl: data.thumbnailUrl
+      ...(data.thumbnailUrl && !imageFile ? { thumbnailUrl: data.thumbnailUrl } : {}),
+      ...(isEdit ? { thumbnailDeleted: Boolean(data.thumbnailDeleted) } : {})
     };
 
     formData.append(
@@ -172,6 +173,7 @@ export default function FormFields({
             isFocusDisabled={isFocusDisabled}
             setIsFetchIsbnLoading={setIsFetchIsbnLoading}
             isSubmitting={isSubmitting}
+            setImageFile={setImageFile}
           />
           <ImgUploadContainer
             imageFile={imageFile}

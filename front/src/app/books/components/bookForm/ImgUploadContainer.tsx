@@ -26,8 +26,9 @@ export default function ImgUploadContainer({
     if (!file) return;
 
     setImageFile(file);
-    setValue("thumbnailImage", file, { shouldDirty: true });
-    setValue("thumbnailUrl", "", { shouldDirty: true });
+    setValue("thumbnailImage", file, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+    setValue("thumbnailUrl", "", { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+    setValue("thumbnailDeleted", false, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
     const url = URL.createObjectURL(file);
     setPreview(url);
   };
@@ -35,8 +36,9 @@ export default function ImgUploadContainer({
   const handleFileRemove = () => {
     setPreview(null);
     setImageFile(null);
-    setValue("thumbnailImage", null, { shouldDirty: true });
-    setValue("thumbnailUrl", "", { shouldDirty: true });
+    setValue("thumbnailImage", null, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+    setValue("thumbnailUrl", "", { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+    setValue("thumbnailDeleted", true, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -55,7 +57,9 @@ export default function ImgUploadContainer({
     if (imageFile) {
       const url = URL.createObjectURL(imageFile);
       setPreview(url);
-      setValue("thumbnailImage", imageFile, { shouldDirty: true });
+      setValue("thumbnailImage", imageFile, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+      setValue("thumbnailUrl", "", { shouldDirty: true, shouldValidate: true, shouldTouch: true });
+      setValue("thumbnailDeleted", false, { shouldDirty: true, shouldValidate: true, shouldTouch: true });
 
       // Cleanup function to revoke the object URL
       return () => URL.revokeObjectURL(url);

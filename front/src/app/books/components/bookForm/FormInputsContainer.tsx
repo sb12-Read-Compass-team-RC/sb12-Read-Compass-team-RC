@@ -39,13 +39,15 @@ export default function FormInputsContainer({
   formMethods,
   isFocusDisabled,
   setIsFetchIsbnLoading,
-  isSubmitting
+  isSubmitting,
+  setImageFile
 }: {
   isEdit: boolean;
   formMethods: FormMethodsSubset<BookFormValues>;
   isFocusDisabled: boolean;
   setIsFetchIsbnLoading: Dispatch<SetStateAction<boolean>>;
   isSubmitting: boolean;
+  setImageFile: Dispatch<SetStateAction<File | null>>;
 }) {
   const { register, control, setValue, setError, formState, watch } =
     formMethods;
@@ -91,6 +93,37 @@ export default function FormInputsContainer({
     }
   };
 
+  const convertBase64ThumbnailToFile = async (thumbnailImage: string) => {
+    const imageUrl = thumbnailImage.startsWith("data:")
+      ? thumbnailImage
+      : `data:image/jpeg;base64,${thumbnailImage}`;
+
+    const imageResponse = await fetch(imageUrl);
+    const blob = await imageResponse.blob();
+
+    return new File([blob], "book-cover.jpg", {
+      type: blob.type || "image/jpeg"
+    });
+  };
+
+  const getThumbnailUrlFromResponse = (
+    thumbnailImage?: string,
+    thumbnailUrl?: string
+  ) => {
+    if (thumbnailUrl && thumbnailUrl.trim()) {
+      return thumbnailUrl;
+    }
+
+    if (
+      thumbnailImage &&
+      (thumbnailImage.startsWith("http://") || thumbnailImage.startsWith("https://"))
+    ) {
+      return thumbnailImage;
+    }
+
+    return "";
+  };
+
   const handleFetchBookInfo = async () => {
     if (!isbnValue) return;
 
@@ -119,23 +152,52 @@ export default function FormInputsContainer({
         shouldDirty: true
       });
 
-      setValue("thumbnailUrl", response.thumbnailUrl, {
-        shouldValidate: true,
-        shouldDirty: true
-      });
+      const thumbnailUrl = getThumbnailUrlFromResponse(
+        response.thumbnailImage,
+        response.thumbnailUrl
+      );
+
+      if (thumbnailUrl) {
+        setImageFile(null);
+        setValue("thumbnailImage", null, { shouldDirty: true });
+        setValue("thumbnailUrl", thumbnailUrl, {
+          shouldValidate: true,
+          shouldDirty: true
+        });
+        setValue("thumbnailDeleted", false, { shouldDirty: true });
+      } else if (response.thumbnailImage) {
+        try {
+          const thumbnailFile = await convertBase64ThumbnailToFile(
+            response.thumbnailImage
+          );
+          setImageFile(thumbnailFile);
+          setValue("thumbnailUrl", "", { shouldDirty: true });
+          setValue("thumbnailDeleted", false, { shouldDirty: true });
+        } catch (error) {
+          console.error("이미지 변환 중 오류가 발생했습니다:", error);
+          setImageFile(null);
+          setValue("thumbnailUrl", "", { shouldDirty: true });
+        }
+      } else {
+        setImageFile(null);
+        setValue("thumbnailUrl", "", { shouldDirty: true });
+      }
     } catch (error) {
-      let message = "도서 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.";
+      let message =
+        "도서 정보를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.";
 
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;
 
         if (status === 400) {
-          message = "ISBN 형식이 올바르지 않습니다. 숫자만 입력했는지 확인해주세요.";
+          message =
+            "ISBN 형식이 올바르지 않습니다. 숫자만 입력했는지 확인해주세요.";
         } else if (status === 404) {
           message =
             "입력한 ISBN으로 도서 정보를 찾을 수 없습니다. 세트 도서이거나 네이버 도서 정보에 등록되지 않은 ISBN일 수 있습니다. 직접 입력해주세요.";
         } else if (status === 500) {
-          message = "도서 정보 API 연결 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+          message =
+            "도서 정보 API 연결 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
         }
       }
 
