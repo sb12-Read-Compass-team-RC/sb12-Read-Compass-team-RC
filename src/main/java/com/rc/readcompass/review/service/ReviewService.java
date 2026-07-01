@@ -5,15 +5,14 @@ import com.rc.readcompass.book.entity.BinaryContent;
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.repository.BinaryContentRepository;
 import com.rc.readcompass.book.repository.BookRepository;
-import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.comments.repository.CommentRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
+import com.rc.readcompass.common.SecurityUtils;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
+import com.rc.readcompass.notification.repository.NotificationRepository;
 import com.rc.readcompass.review.dto.*;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.review.entity.ReviewLike;
-import com.rc.readcompass.review.entity.ReviewRanking;
 import com.rc.readcompass.review.exception.ReviewException;
 import com.rc.readcompass.review.mapper.ReviewMapper;
 import com.rc.readcompass.review.repository.review.ReviewLikeRepository;
@@ -22,6 +21,7 @@ import com.rc.readcompass.review.repository.reviewranking.ReviewRankingRepositor
 import com.rc.readcompass.user.User;
 import com.rc.readcompass.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +41,17 @@ public class ReviewService {
     private final BinaryContentRepository binaryContentRepository;
     private final CommentRepository commentRepository;
     private final ReviewRankingRepository reviewRankingRepository;
-//    private final NotificationRepository notificationRepository;
-
+    private final NotificationRepository notificationRepository;
 
     private final ReviewMapper reviewMapper;
 
     private static final int DEFAULT_LIMIT = 50;
+
+    @Value("${app.backend.base-url}")
+    private String backendBaseUrl;
+
+    @Value("${app.storage.attachment-url-path:/attachments}")
+    private String attachmentUrlPath;
 
     // 리뷰 등록
     @Transactional
@@ -118,7 +123,7 @@ public class ReviewService {
     public void deleteReview(UUID reviewId, UUID requestUserId) {
         Review review = reviewRepository.findByIdAndDeletedFalse(reviewId)
                 .orElseThrow(()-> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
-        validateOwner(review, requestUserId);
+        validateOwnerOrAdmin(review, requestUserId);
 
         review.softDelete();
     }
@@ -131,17 +136,13 @@ public class ReviewService {
 
         validateOwner(review, requestUserId);
 
-        if(!review.isDeleted()){
-            throw new ReviewException(ErrorCode.REVIEW_NOT_DELETED);
-        }
-
         Book book = getBook(review.getBook().getId());
         int rating = review.getRating();
 
         // 같이 사라져야 할 것들 좋아요, 댓글, 알림, 랭킹 스냅샷
         reviewLikeRepository.deleteAllByReviewId(reviewId);
         commentRepository.deleteAllByReviewId(reviewId);
-//        notificationRepository.deleteAllByReviewId(reviewId);
+        notificationRepository.deleteAllByReviewId(reviewId);
         reviewRankingRepository.deleteAllByReviewId(reviewId);
 
         reviewRepository .delete(review);
@@ -165,15 +166,32 @@ public class ReviewService {
         }
     }
 
+    // 본인이거나 관리자면 통과 (관리자는 다른 사용자의 리뷰도 논리 삭제 가능)
+    private void validateOwnerOrAdmin(Review review, UUID requestUserId) {
+        if (SecurityUtils.isAdmin()) {
+            return;
+        }
+        validateOwner(review, requestUserId);
+    }
+
     private ReviewDto toDto(Review review, UUID requestUserId) {
         boolean likedByMe = reviewLikeRepository.existsByReviewIdAndUserId(
                 review.getId(),
                 requestUserId
         );
 
-        String bookThumbnailUrl = binaryContentRepository.findByBookId(review.getBook().getId())
+        String binaryContent = binaryContentRepository.findByBookId(review.getBook().getId())
                 .map(BinaryContent::getRenamedFileUrl)
                 .orElse(null);
+
+        String bookThumbnailUrl = null;
+
+        if(binaryContent != null && !binaryContent.isBlank()){
+            bookThumbnailUrl =backendBaseUrl
+                    + attachmentUrlPath
+                    + "/"
+                    + binaryContent;
+        }
 
         return reviewMapper.toDto(review, bookThumbnailUrl, likedByMe);
     }

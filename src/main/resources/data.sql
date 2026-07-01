@@ -10,11 +10,11 @@
 -- =====================================================
 INSERT INTO tb_users (id, username, email, password, role, provider, provider_id, last_login_at, is_deleted, created_at, updated_at) VALUES
 -- ★ 실제 로그인 가능 계정 (비밀번호: 12345678)
-('00000000-0000-0000-0000-000000000001', 'asd',         'asd@asd.com',         '12345678', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
+('00000000-0000-0000-0000-000000000001', 'asd',         'asd@asd.com',         '$2b$10$BGLkPQ1NejDzKkb24BaFzemXKhPtRAn7v08WujHck.NPmm7TFQTMa', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 ('00000000-0000-0000-0000-000000000002', 'qwe',         'qwe@qwe.com',         '$2b$10$BGLkPQ1NejDzKkb24BaFzemXKhPtRAn7v08WujHck.NPmm7TFQTMa', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 
 -- ADMIN
-('a0000000-0000-0000-0000-000000000001', 'admin',       'admin@booklog.com',   '$2b$10$BGLkPQ1NejDzKkb24BaFzemXKhPtRAn7v08WujHck.NPmm7TFQTMa', 'ADMIN', 'LOCAL', NULL, NOW(), false, NOW(), NOW()),
+('a0000000-0000-0000-0000-000000000001', 'admin',       'admin@admin.com',   '$2b$10$BGLkPQ1NejDzKkb24BaFzemXKhPtRAn7v08WujHck.NPmm7TFQTMa', 'ADMIN', 'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 
 -- 샘플 유저 (더미 해시, 로그인 불가)
 ('d0000000-0000-0000-0000-000000000001', 'kim_reader',  'kim@example.com',     '$2a$10$FAKEHASHFAKEHASHFAKEHASHFAKEHASHFAKEHASHFAKEHASHFAKEHA', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),

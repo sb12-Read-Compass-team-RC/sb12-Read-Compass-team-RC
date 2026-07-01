@@ -2,6 +2,7 @@ package com.rc.readcompass.review.service;
 
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
+import com.rc.readcompass.notification.service.NotificationService;
 import com.rc.readcompass.review.dto.ReviewLikeDto;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.entity.ReviewLike;
@@ -25,6 +26,7 @@ public class ReviewLikeService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final UserRepository userRepository;
     private final ReviewMapper reviewMapper;
+    private final NotificationService notificationService;
 
     // 리뷰 좋아요 - 좋아요를 추가하거나 취소
     @Transactional
@@ -59,6 +61,8 @@ public class ReviewLikeService {
 
         reviewLikeRepository.save(reviewLike);
         review.incrementLikeCount();
+
+        notificationService.createLikeNotification(review, user);
 
         return reviewMapper.toLikeDto(
                 reviewLike,

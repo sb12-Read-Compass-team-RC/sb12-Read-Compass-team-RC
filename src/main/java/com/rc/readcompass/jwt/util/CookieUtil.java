@@ -1,6 +1,6 @@
 package com.rc.readcompass.jwt.util;
 
-import com.rc.readcompass.common.Define;
+import com.rc.readcompass.jwt.TokenType;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +26,7 @@ public class CookieUtil {
 
   /** refresh 토큰 쿠키 생성 */
   public Cookie createRefresh(String value) {
-    Cookie cookie = new Cookie(Define.refresh, value);
+    Cookie cookie = new Cookie(TokenType.REFRESH.category(), value);
     cookie.setHttpOnly(true);
     cookie.setPath("/");
     cookie.setMaxAge(refreshMaxAge);
@@ -37,7 +37,7 @@ public class CookieUtil {
 
   /** refresh 토큰 쿠키 만료(삭제) */
   public Cookie clearRefresh() {
-    Cookie cookie = new Cookie(Define.refresh, null);
+    Cookie cookie = new Cookie(TokenType.REFRESH.category(), null);
     cookie.setHttpOnly(true);
     cookie.setPath("/");
     cookie.setMaxAge(0);
@@ -53,7 +53,7 @@ public class CookieUtil {
       return null;
     }
     for (Cookie cookie : cookies) {
-      if (Define.refresh.equals(cookie.getName())) {
+      if (TokenType.REFRESH.category().equals(cookie.getName())) {
         return cookie.getValue();
       }
     }

@@ -8,8 +8,10 @@ import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.comments.mapper.CommentMapper;
 import com.rc.readcompass.comments.repository.CommentRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
+import com.rc.readcompass.common.SecurityUtils;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
+import com.rc.readcompass.notification.service.NotificationService;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.repository.review.ReviewRepository;
 import com.rc.readcompass.user.User;
@@ -27,6 +29,7 @@ public class CommentService {
   private final ReviewRepository reviewRepository;
   private final UserRepository userRepository;
   private final CommentMapper commentMapper;
+  private final NotificationService notificationService;
 
   @Transactional
   public CommentDto register(CommentCreateRequest request){
@@ -36,6 +39,8 @@ public class CommentService {
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     Comment comment = commentMapper.toEntity(request, review, user);
     commentRepository.save(comment);
+    review.incrementCommentCount();
+    notificationService.createCommentNotification(review, user);
     return commentMapper.toResponse(comment);
   }
 
@@ -79,10 +84,12 @@ public class CommentService {
   ){
     Comment comment = commentRepository.findByIdAndDeletedFalse(commentId)
         .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-    if (!comment.getUser().getId().equals(userId)){
+    // 본인이거나 관리자면 통과 (관리자는 다른 사용자의 댓글도 논리 삭제 가능)
+    if (!SecurityUtils.isAdmin() && !comment.getUser().getId().equals(userId)){
       throw new CustomException(ErrorCode.COMMENT_FORBIDDEN);
     }
     comment.softDelete();
+    comment.getReview().decrementCommentCount();
   }
 
   @Transactional
