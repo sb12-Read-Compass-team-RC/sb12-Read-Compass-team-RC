@@ -30,6 +30,8 @@ public record BookCreateRequest(
     String isbn,
 
     @NotNull(message = "도서 카테고리는 필수입니다.")
-    BookCategory category
+    BookCategory category,
+
+    String thumbnailUrl
 ) {
 }

@@ -125,7 +125,7 @@ public class NaverBookClient {
           cleanHtml(item.path("publisher").asText()),
           parsePublishedDate(item.path("pubdate").asText()),
           extractIsbn(item.path("isbn").asText()),
-          null
+          item.path("image").asText(null)
       );
     } catch (CustomException e) {
       throw e;
