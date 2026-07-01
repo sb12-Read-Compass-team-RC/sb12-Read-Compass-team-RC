@@ -1,11 +1,12 @@
 package com.rc.readcompass.jwt.controller;
 
-import com.rc.readcompass.common.Define;
+import com.rc.readcompass.jwt.TokenType;
 import com.rc.readcompass.jwt.entity.RefreshToken;
 import com.rc.readcompass.jwt.repository.RefreshRepository;
 import com.rc.readcompass.jwt.service.RefreshTokenService;
 import com.rc.readcompass.jwt.util.CookieUtil;
 import com.rc.readcompass.jwt.util.JWTUtil;
+import com.rc.readcompass.jwt.util.JwtHeaders;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -66,7 +67,7 @@ public class ReissueController {
     }
 
     // 3. category 가 refresh 인지 확인
-    if (!Define.refresh.equals(claims.get("category", String.class))) {
+    if (!TokenType.REFRESH.category().equals(claims.get("category", String.class))) {
       return unauthorized("유효하지 않은 refresh token입니다.");
     }
 
@@ -81,8 +82,8 @@ public class ReissueController {
     String username = claims.get("username", String.class);
     String role     = claims.get("role", String.class);
 
-    String newAccess  = jwtUtil.createJwt("access",       userId, username, role, accessExpireMs);
-    String newRefresh = jwtUtil.createJwt(Define.refresh, userId, username, role, refreshExpireMs);
+    String newAccess  = jwtUtil.createJwt(TokenType.ACCESS.category(), userId, username, role, accessExpireMs);
+    String newRefresh = jwtUtil.createJwt(TokenType.REFRESH.category(), userId, username, role, refreshExpireMs);
 
     // 6. Rotation: 기존 refresh 제거 후 새 refresh 저장
     Instant expiry = Instant.now().plusMillis(refreshExpireMs);
@@ -90,7 +91,7 @@ public class ReissueController {
 
     // 7. 응답: Authorization: Bearer <access> (표준) + access 헤더(호환) + 새 refresh 쿠키
     response.setHeader("Authorization", "Bearer " + newAccess);
-    response.setHeader("access", newAccess);
+    response.setHeader(JwtHeaders.LEGACY_ACCESS_HEADER, newAccess);
     response.addCookie(cookieUtil.createRefresh(newRefresh));
     return ResponseEntity.ok(Map.of("message", "재발급 완료"));
   }

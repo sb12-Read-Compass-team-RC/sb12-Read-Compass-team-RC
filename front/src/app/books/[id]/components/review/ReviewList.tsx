@@ -7,6 +7,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import ActionDropdown from "./ActionDropdown";
 import ReviewDeleteModal from "./ReviewDeleteModal";
 import { useAuthStore } from "@/store/authStore";
+import { isAdmin } from "@/utils/authRole";
 import DelayedLoader from "@/components/common/DelayedLoader";
 import InfiniteScrollLoader from "@/components/common/InfiniteScrollLoader";
 import EditContainer from "./EditContainer";
@@ -79,6 +80,8 @@ export default function ReviewList({
         {reviews.map(review => {
           const isEdit = editingReviewId === review.id;
           const isMyReview = user?.id === review.userId;
+          // 본인 리뷰이거나 관리자면 메뉴 노출 (관리자는 삭제만 가능)
+          const canManageReview = isMyReview || isAdmin(user?.role);
 
           return (
             <div key={review.id} className="pb-5 border-b border-gray-100">
@@ -92,11 +95,12 @@ export default function ReviewList({
                     {formatDate(review.createdAt)}
                   </span>
                 </p>
-                {isMyReview && (
+                {canManageReview && (
                   <ActionDropdown
                     showModal={showModal}
                     reviewId={review.id}
                     setReviewId={setReviewId}
+                    canEdit={isMyReview}
                     setIsEdit={() => {
                       setEditingReviewId(review.id);
                       setRating(review.rating);

@@ -7,6 +7,7 @@ import com.rc.readcompass.book.repository.BinaryContentRepository;
 import com.rc.readcompass.book.repository.BookRepository;
 import com.rc.readcompass.comments.repository.CommentRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
+import com.rc.readcompass.common.SecurityUtils;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.review.dto.*;
@@ -121,7 +122,7 @@ public class ReviewService {
     public void deleteReview(UUID reviewId, UUID requestUserId) {
         Review review = reviewRepository.findByIdAndDeletedFalse(reviewId)
                 .orElseThrow(()-> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
-        validateOwner(review, requestUserId);
+        validateOwnerOrAdmin(review, requestUserId);
 
         review.softDelete();
     }
@@ -166,6 +167,14 @@ public class ReviewService {
         if (!review.getUser().getId().equals(requestUserId)) {
             throw new ReviewException(ErrorCode.REVIEW_FORBIDDEN);
         }
+    }
+
+    // 본인이거나 관리자면 통과 (관리자는 다른 사용자의 리뷰도 논리 삭제 가능)
+    private void validateOwnerOrAdmin(Review review, UUID requestUserId) {
+        if (SecurityUtils.isAdmin()) {
+            return;
+        }
+        validateOwner(review, requestUserId);
     }
 
     private ReviewDto toDto(Review review, UUID requestUserId) {

@@ -8,6 +8,7 @@ import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.comments.mapper.CommentMapper;
 import com.rc.readcompass.comments.repository.CommentRepository;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
+import com.rc.readcompass.common.SecurityUtils;
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
 import com.rc.readcompass.review.entity.Review;
@@ -80,7 +81,8 @@ public class CommentService {
   ){
     Comment comment = commentRepository.findByIdAndDeletedFalse(commentId)
         .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-    if (!comment.getUser().getId().equals(userId)){
+    // 본인이거나 관리자면 통과 (관리자는 다른 사용자의 댓글도 논리 삭제 가능)
+    if (!SecurityUtils.isAdmin() && !comment.getUser().getId().equals(userId)){
       throw new CustomException(ErrorCode.COMMENT_FORBIDDEN);
     }
     comment.softDelete();
