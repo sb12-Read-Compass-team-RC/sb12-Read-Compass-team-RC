@@ -1,6 +1,5 @@
 package com.rc.readcompass.jwt.entity;
 
-import com.rc.readcompass.common.Define;
 import com.rc.readcompass.jwt.dto.AuthDto;
 import com.rc.readcompass.user.UserRole;
 import java.util.Collection;
@@ -22,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
     UserRole role = authDto.getUserRole();
     if (role == null)
       role = UserRole.USER;
-    return List.of(new SimpleGrantedAuthority(Define.role + role.name()));
+    return List.of(new SimpleGrantedAuthority(role.authority()));
   }
 
   public UUID getUserId() {

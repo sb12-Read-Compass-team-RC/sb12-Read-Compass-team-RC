@@ -7,12 +7,14 @@ export default function ActionDropdown({
   showModal,
   reviewId,
   setReviewId,
-  setIsEdit
+  setIsEdit,
+  canEdit = true
 }: {
   showModal: () => void;
   reviewId: string;
   setReviewId: Dispatch<SetStateAction<string>>;
   setIsEdit: Dispatch<SetStateAction<boolean>>;
+  canEdit?: boolean;
 }) {
   const { open: showDropdown, setOpen, dropdownRef } = useClickOutside();
 
@@ -41,7 +43,10 @@ export default function ActionDropdown({
         />
       </button>
       {showDropdown && (
-        <ActionMenu onEdit={handleEdit} onDelete={showDeleteModal} />
+        <ActionMenu
+          onEdit={canEdit ? handleEdit : undefined}
+          onDelete={showDeleteModal}
+        />
       )}
     </div>
   );

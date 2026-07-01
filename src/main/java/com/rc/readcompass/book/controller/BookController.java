@@ -24,6 +24,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -104,13 +105,15 @@ public class BookController {
     return ResponseEntity.ok(bookService.update(bookId, bookData, thumbnailImage));
   }
 
-  // 소프트 딜리트 - deleted_at 업데이트, DB 삭제X
+  // 소프트 딜리트 - deleted_at 업데이트, DB 삭제X (관리자만 가능)
+  @PreAuthorize("hasRole('ADMIN')")
   @DeleteMapping("/{bookId}")
   public ResponseEntity<Void> deleteBook(@PathVariable UUID bookId) {
     bookService.delete(bookId);
     return ResponseEntity.noContent().build();
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @DeleteMapping("/{bookId}/hard")
   public ResponseEntity<Void> hardDeleteBook(@PathVariable UUID bookId) {
     bookService.hardDelete(bookId);

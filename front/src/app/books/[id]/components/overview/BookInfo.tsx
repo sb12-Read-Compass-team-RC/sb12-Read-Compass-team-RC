@@ -6,6 +6,8 @@ import { useClickOutside } from "@/hooks/common/useClickOutside";
 import {useNavigate} from "react-router-dom";
 import BookDeleteModal from "./BookDeleteModal";
 import { useDisclosure } from "@/hooks/common/useDisclosure";
+import { useAuthStore } from "@/store/authStore";
+import { isAdmin } from "@/utils/authRole";
 import getImagePath from "@/constants/images.ts";
 
 type Book = {
@@ -25,6 +27,9 @@ export default function BookInfo({
   const { open: showDropdown, setOpen, dropdownRef } = useClickOutside();
   const { isOpen, open: showModal, close } = useDisclosure();
   const navigate = useNavigate();
+  // 도서 삭제는 관리자만 가능 (일반 사용자는 삭제 버튼 미노출)
+  const { user } = useAuthStore();
+  const admin = isAdmin(user?.role);
 
   const showDeleteModal = () => {
     showModal();
@@ -60,7 +65,7 @@ export default function BookInfo({
               {showDropdown && (
                 <ActionMenu
                   onEdit={() => navigate(`/books/${id}/edit`)}
-                  onDelete={showDeleteModal}
+                  onDelete={admin ? showDeleteModal : undefined}
                 />
               )}
             </div>

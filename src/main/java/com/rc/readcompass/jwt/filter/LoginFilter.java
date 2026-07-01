@@ -1,11 +1,12 @@
 package com.rc.readcompass.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rc.readcompass.common.Define;
+import com.rc.readcompass.jwt.TokenType;
 import com.rc.readcompass.jwt.entity.CustomUserDetails;
 import com.rc.readcompass.jwt.service.RefreshTokenService;
 import com.rc.readcompass.jwt.util.CookieUtil;
 import com.rc.readcompass.jwt.util.JWTUtil;
+import com.rc.readcompass.jwt.util.JwtHeaders;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -80,8 +81,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             .orElse("ROLE_USER");
 
         // 토큰 발급
-        String access = jwtUtil.createJwt("access", userId, username, role, accessExpireMs);
-        String refresh = jwtUtil.createJwt(Define.refresh, userId, username, role, refreshExpireMs);
+        String access = jwtUtil.createJwt(TokenType.ACCESS.category(), userId, username, role, accessExpireMs);
+        String refresh = jwtUtil.createJwt(TokenType.REFRESH.category(), userId, username, role, refreshExpireMs);
 
         // Refresh 저장 — rotate(): 유저의 기존 토큰 제거 후 새로 저장 (OAuth 로그인과 동일하게 통일)
         Instant expiry = Instant.now().plusMillis(refreshExpireMs);
@@ -90,7 +91,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 응답: Authorization: Bearer <access> (표준) + refresh 쿠키
         // access 헤더도 함께 내려 기존 빌드된 프론트와 호환을 유지한다.
         response.setHeader("Authorization", "Bearer " + access);
-        response.setHeader("access", access);
+        response.setHeader(JwtHeaders.LEGACY_ACCESS_HEADER, access);
         response.addCookie(cookieUtil.createRefresh(refresh));
 
         response.setStatus(HttpServletResponse.SC_OK);

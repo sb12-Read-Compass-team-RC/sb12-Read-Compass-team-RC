@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authApi } from "@/api/auth";
 import { tokenStore } from "@/api/tokenStore";
+import { getRoleFromToken } from "@/utils/authRole";
 import type { SignupRequest, LoginRequest, User } from "@/types/auth";
 
 interface AuthState {
@@ -105,8 +106,10 @@ export const useAuthStore = create<AuthStore>()(
       setOAuthUser: (user: User) => {
         // OAuth2 로그인도 userId 동기화 필요
         tokenStore.setUserId(user.id ?? null);
+        // OAuth 리다이렉트에는 role 이 없으므로 access 토큰에서 보강한다.
+        const role = user.role ?? getRoleFromToken(tokenStore.get());
         set({
-          user,
+          user: { ...user, role: role ?? undefined },
           isAuthenticated: true,
           isLoading: false,
           error: null
@@ -132,7 +135,12 @@ export const useAuthStore = create<AuthStore>()(
         if (me) {
           // 세션 복구 시에도 userId 동기화
           tokenStore.setUserId(me.id ?? null);
-          set({ user: me, isAuthenticated: true });
+          // /api/users/me 응답(UserDto)에는 role 이 없으므로 access 토큰에서 보강한다.
+          const role = me.role ?? getRoleFromToken(tokenStore.get());
+          set({
+            user: { ...me, role: role ?? undefined },
+            isAuthenticated: true
+          });
         } else {
           tokenStore.setUserId(null);
           set({ user: null, isAuthenticated: false });

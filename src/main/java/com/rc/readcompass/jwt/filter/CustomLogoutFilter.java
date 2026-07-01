@@ -1,6 +1,6 @@
 package com.rc.readcompass.jwt.filter;
 
-import com.rc.readcompass.common.Define;
+import com.rc.readcompass.jwt.TokenType;
 import com.rc.readcompass.jwt.repository.RefreshRepository;
 import com.rc.readcompass.jwt.util.CookieUtil;
 import com.rc.readcompass.jwt.util.JWTUtil;
@@ -58,7 +58,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     // 토큰이 refresh인지 확인
     String category = jwtUtil.getCategory(refresh);
-    if (!category.equals(Define.refresh)) {
+    if (!category.equals(TokenType.REFRESH.category())) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return;
     }

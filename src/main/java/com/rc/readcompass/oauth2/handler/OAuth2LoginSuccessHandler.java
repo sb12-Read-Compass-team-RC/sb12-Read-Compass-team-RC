@@ -1,5 +1,6 @@
 package com.rc.readcompass.oauth2.handler;
 
+import com.rc.readcompass.jwt.TokenType;
 import com.rc.readcompass.jwt.service.RefreshTokenService;
 import com.rc.readcompass.jwt.util.CookieUtil;
 import com.rc.readcompass.jwt.util.JWTUtil;
@@ -46,11 +47,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     UUID   userId   = oAuth2User.getUserId();
     String nickname = oAuth2User.getNickname();
-    String role     = "ROLE_" + oAuth2User.getRole().name();
+    String role     = oAuth2User.getRole().authority();
 
     // 1. 토큰 생성
-    String accessToken  = jwtUtil.createJwt("access",  userId, nickname, role, accessExpireMs);
-    String refreshToken = jwtUtil.createJwt("refresh", userId, nickname, role, refreshExpireMs);
+    String accessToken  = jwtUtil.createJwt(TokenType.ACCESS.category(),  userId, nickname, role, accessExpireMs);
+    String refreshToken = jwtUtil.createJwt(TokenType.REFRESH.category(), userId, nickname, role, refreshExpireMs);
 
     // 2. Refresh Token DB 저장 (Rotation)
     Instant expiry = Instant.now().plusMillis(refreshExpireMs);

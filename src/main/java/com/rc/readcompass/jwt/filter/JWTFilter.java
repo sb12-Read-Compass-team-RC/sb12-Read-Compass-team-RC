@@ -1,9 +1,10 @@
 package com.rc.readcompass.jwt.filter;
 
-import com.rc.readcompass.common.Define;
+import com.rc.readcompass.jwt.TokenType;
 import com.rc.readcompass.jwt.dto.AuthDto;
 import com.rc.readcompass.jwt.entity.CustomUserDetails;
 import com.rc.readcompass.jwt.util.JWTUtil;
+import com.rc.readcompass.jwt.util.JwtHeaders;
 import com.rc.readcompass.user.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -56,7 +57,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!"access".equals(claims.get("category", String.class))) {
+        if (!TokenType.ACCESS.category().equals(claims.get("category", String.class))) {
             unauthorized(response, "invalid access token");
             return;
         }
@@ -90,7 +91,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return auth.substring(7);   // "Bearer " (7글자) 제거
         }
         // 하위 호환: 기존 빌드된 프론트는 토큰을 access 헤더로 보낸다.
-        return request.getHeader("access");
+        return request.getHeader(JwtHeaders.LEGACY_ACCESS_HEADER);
     }
 
     private void unauthorized(HttpServletResponse response, String message) throws IOException {
@@ -99,12 +100,6 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     private UserRole parseRole(String role) {
-        if (role == null) return UserRole.USER;
-        String normalized = role.startsWith(Define.role) ? role.substring(5) : role;
-        try {
-            return UserRole.valueOf(normalized);
-        } catch (IllegalArgumentException e) {
-            return UserRole.USER;
-        }
+        return UserRole.fromAuthority(role);
     }
 }

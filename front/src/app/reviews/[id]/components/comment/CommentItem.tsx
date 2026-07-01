@@ -4,6 +4,7 @@ import Button from "@/components/common/Buttons/Button";
 import Textarea from "@/components/ui/Textarea";
 import ActionMenu from "@/components/common/ActionMenu";
 import { useAuthStore } from "@/store/authStore";
+import { isAdmin } from "@/utils/authRole";
 import { useClickOutside } from "@/hooks/common/useClickOutside";
 import { updateComment } from "@/api/comments";
 import type { Comment } from "@/types/reviews";
@@ -29,6 +30,9 @@ export default function CommentItem({
 }: CommentItemProps) {
   const { user } = useAuthStore();
   const isMyComment = user?.id === comment.userId;
+  const admin = isAdmin(user?.role);
+  // 본인 댓글이거나 관리자면 메뉴를 열 수 있음 (관리자는 삭제만 가능)
+  const canManage = isMyComment || admin;
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -43,10 +47,10 @@ export default function CommentItem({
   } = useClickOutside();
 
   const handleMoreClick = useCallback(() => {
-    if (isMyComment) {
+    if (canManage) {
       setIsActionMenuOpen(!isActionMenuOpen);
     }
-  }, [isMyComment, isActionMenuOpen, setIsActionMenuOpen]);
+  }, [canManage, isActionMenuOpen, setIsActionMenuOpen]);
 
   const handleEdit = useCallback(() => {
     setIsEditMode(true);
@@ -104,7 +108,7 @@ export default function CommentItem({
               {new Date(comment.createdAt).toLocaleDateString()}
             </span>
           </div>
-          {isMyComment && !isEditMode && (
+          {canManage && !isEditMode && (
             <div className="relative" ref={actionMenuRef}>
               <img
                 src={getImagePath("/icon/ic_more.svg")}
@@ -115,7 +119,10 @@ export default function CommentItem({
                 onClick={handleMoreClick}
               />
               {isActionMenuOpen && (
-                <ActionMenu onEdit={handleEdit} onDelete={handleDelete} />
+                <ActionMenu
+                  onEdit={isMyComment ? handleEdit : undefined}
+                  onDelete={handleDelete}
+                />
               )}
             </div>
           )}
