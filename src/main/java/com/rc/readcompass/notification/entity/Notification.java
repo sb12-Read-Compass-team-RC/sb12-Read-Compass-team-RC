@@ -55,7 +55,27 @@ public class Notification extends BaseEntity {
      * 알림 확인 처리
      */
     public void confirm() {
+        if (confirmed) {
+            return;
+        }
         this.confirmed = true;
         this.confirmedAt = Instant.now();
+    }
+
+    /**
+     * 정적 팩토리 메서드
+     */
+    public static Notification create(
+        User user,
+        Review review,
+        String message,
+        NotificationType notiType
+    ){
+        return Notification.builder()
+            .user(user)
+            .review(review)
+            .message(message)
+            .notiType(notiType)
+            .build();
     }
 }
