@@ -27,7 +27,6 @@ public class CommentService {
   private final ReviewRepository reviewRepository;
   private final UserRepository userRepository;
   private final CommentMapper commentMapper;
-  private final NotificationService notificationService;
 
   @Transactional
   public CommentDto register(CommentCreateRequest request){
@@ -38,7 +37,6 @@ public class CommentService {
     Comment comment = commentMapper.toEntity(request, review, user);
     commentRepository.save(comment);
     review.incrementCommentCount();
-    notificationService.createCommentNotification(review, user);
     return commentMapper.toResponse(comment);
   }
 
