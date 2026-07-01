@@ -21,7 +21,8 @@ export const bookFormSchema = z.object({
     .min(1, "설명을 입력해주세요.")
     .max(1000, "글자수를 1000자 이하로 입력해주세요."),
   thumbnailImage: z.any().optional(),
-  thumbnailUrl: z.string().optional()
+  thumbnailUrl: z.string().optional(),
+  thumbnailDeleted: z.boolean().optional(),
 });
 
 export type BookFormValues = z.infer<typeof bookFormSchema>;

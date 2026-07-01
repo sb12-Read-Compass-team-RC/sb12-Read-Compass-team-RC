@@ -43,4 +43,11 @@ public class BinaryContent extends BaseEntity {
     public void assignBook(Book book) {
         this.book = book;
     }
+
+    public void updateFileInfo(BinaryContent newFile) {
+        this.originFileUrl = newFile.getOriginFileUrl();
+        this.renamedFileUrl = newFile.getRenamedFileUrl();
+        this.size = newFile.getSize();
+        this.contentType = newFile.getContentType();
+    }
 }

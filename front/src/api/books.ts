@@ -90,7 +90,8 @@ export interface NaverBookDto {
   publisher: string;
   publishedDate: string;
   isbn: string;
-  thumbnailUrl: string;
+  thumbnailImage?: string;
+  thumbnailUrl?: string;
 }
 
 // 인기도서 목록 조회
