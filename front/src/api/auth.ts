@@ -13,26 +13,61 @@ import type {
 // 인증 API 함수들
 export const authApi = {
   // 회원가입
-  async signup(userData: SignupRequest): Promise<SignupResponse> {
-    try {
-      return await apiClient.post<SignupResponse>(
-        API_ENDPOINTS.USERS.SIGNUP,
-        userData
-      );
-    } catch (error) {
-      console.error("회원가입 API 에러:", error);
-      if (error instanceof Error) {
-        if (error.message.includes("이미 존재")) {
-          throw new Error("이미 존재하는 이메일 또는 닉네임입니다.");
-        } else if (error.message.includes("400")) {
-          throw new Error("입력값을 확인해주세요.");
-        } else if (error.message.includes("500")) {
-          throw new Error("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+async signup(userData: SignupRequest): Promise<SignupResponse> {
+  try {
+    return await apiClient.post<SignupResponse>(
+      API_ENDPOINTS.USERS.SIGNUP,
+      userData
+    );
+  } catch (error) {
+    console.error("회원가입 API 에러:", error);
+
+    if (axios.isAxiosError(error)) {
+      const response = error.response?.data as
+        | {
+            status?: number;
+            message?: string;
+            details?: string[];
+          }
+        | undefined;
+
+      // 중복 사용자 (409)
+      if (error.response?.status === 409) {
+        const details: string[] = response?.details ?? [];
+
+        if (details.some((detail) => detail.includes("이메일"))) {
+          throw new Error("이미 존재하는 이메일입니다.");
         }
+
+        if (details.some((detail) => detail.includes("닉네임"))) {
+          throw new Error("이미 존재하는 닉네임입니다.");
+        }
+
+        throw new Error(response?.message ?? "이미 존재하는 사용자입니다.");
       }
-      throw new Error("회원가입에 실패했습니다.");
+
+      // 잘못된 요청
+      if (error.response?.status === 400) {
+        throw new Error(
+          response?.message ?? "입력값을 확인해주세요."
+        );
+      }
+
+      // 서버 에러
+      if (
+        error.response?.status &&
+        error.response.status >= 500
+      ) {
+        throw new Error(
+          "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+        );
+      }
     }
-  },
+
+    throw new Error("회원가입에 실패했습니다.");
+  }
+}
+,
 
   // 로그인 — 바디(유저정보) + 헤더(access 토큰)를 함께 처리
   async login(credentials: LoginRequest): Promise<LoginResponse> {
