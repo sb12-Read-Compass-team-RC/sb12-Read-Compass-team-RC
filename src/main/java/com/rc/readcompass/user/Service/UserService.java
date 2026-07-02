@@ -12,10 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.rc.readcompass.user.User;
-import com.rc.readcompass.user.UserRanking;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -59,18 +58,29 @@ public class UserService {
 
     // PATCH /api/users/{userId} - 사용자 정보 수정
     @Transactional
-    public UserResponse updateUser(UUID userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public UserResponse updateUser(UUID userId, UUID requesterId, UserUpdateRequest request) {
+        if (!userId.equals(requesterId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+        }
+
+        User user = userRepository.findByIdAndDeletedFalse(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
         user.updateNickname(request.nickname());
         return userMapper.toResponse(user);
     }
 
     // DELETE /api/users/{userId} - 논리 삭제
+    // DELETE /api/users/{userId} - 논리 삭제
     @Transactional
-    public void softDeleteUser(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+    public void softDeleteUser(UUID userId, UUID requesterId) {
+        if (!userId.equals(requesterId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "탈퇴 권한이 없습니다.");
+        }
+
+        User user = userRepository.findByIdAndDeletedFalse(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
         user.softDelete();
     }
 

@@ -12,4 +12,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     // 회원가입 - 중복 체크
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
+
+    Optional<User> findByIdAndDeletedFalse(UUID id); //닉네임 수정
 }
