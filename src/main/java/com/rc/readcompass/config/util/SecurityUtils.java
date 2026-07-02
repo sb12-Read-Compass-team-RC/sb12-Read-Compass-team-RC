@@ -1,6 +1,6 @@
 package com.rc.readcompass.common;
 
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.entity.UserRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;

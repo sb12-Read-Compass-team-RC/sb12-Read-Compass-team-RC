@@ -4,7 +4,7 @@ import com.rc.readcompass.comments.dto.CommentCreateRequest;
 import com.rc.readcompass.comments.dto.CommentDto;
 import com.rc.readcompass.comments.entity.Comment;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

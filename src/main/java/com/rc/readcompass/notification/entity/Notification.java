@@ -2,7 +2,7 @@ package com.rc.readcompass.notification.entity;
 
 import com.rc.readcompass.common.domain.BaseEntity;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.AccessLevel;

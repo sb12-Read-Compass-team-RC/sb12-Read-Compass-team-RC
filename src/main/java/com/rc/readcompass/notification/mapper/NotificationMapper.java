@@ -4,7 +4,7 @@ import com.rc.readcompass.notification.dto.NotificationDto;
 import com.rc.readcompass.notification.entity.Notification;
 import com.rc.readcompass.notification.entity.NotificationType;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

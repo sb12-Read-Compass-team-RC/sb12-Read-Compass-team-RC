@@ -32,7 +32,7 @@ type AuthStore = AuthState & AuthActions;
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    set => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -130,19 +130,27 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       restore: async () => {
-        // access 토큰이 메모리에 없으면 refresh 쿠키로 복구 시도
-        const me = await authApi.restoreSession();
-        if (me) {
-          // 세션 복구 시에도 userId 동기화
+        // 저장된 로그인 상태(localStorage)를 그대로 믿지 않고,
+        // 서버에 실제로 존재하는(살아있는) 세션인지 검증한다.
+        const userId = tokenStore.getUserId() ?? get().user?.id ?? null;
+        if (!userId) {
+          tokenStore.clear();
+          set({ user: null, isAuthenticated: false });
+          return;
+        }
+        try {
+          // access 가 없거나 만료면 client 인터셉터가 refresh 쿠키로 재발급 후 재시도한다.
+          // 유저가 없으면(서버/DB 리셋, 탈퇴 등) 404 → catch 로 떨어진다.
+          const me = await authApi.getUserProfile(userId);
           tokenStore.setUserId(me.id ?? null);
-          // /api/users/me 응답(UserDto)에는 role 이 없으므로 access 토큰에서 보강한다.
           const role = me.role ?? getRoleFromToken(tokenStore.get());
           set({
             user: { ...me, role: role ?? undefined },
             isAuthenticated: true
           });
-        } else {
-          tokenStore.setUserId(null);
+        } catch {
+          // 서버가 세션을 인정하지 않음 → 로그인 상태 초기화
+          tokenStore.clear();
           set({ user: null, isAuthenticated: false });
         }
       },
@@ -165,7 +173,9 @@ export const useAuthStore = create<AuthStore>()(
           if (state.user?.id) {
             tokenStore.setUserId(state.user.id);
           }
-          state.setInitialized(true);
+          // 주의: 여기서 초기화 완료로 두지 않는다.
+          // 저장된 값만으로 "로그인됨"을 확정하면 서버 세션이 죽어도 로그인 상태가 되므로,
+          // 앱 시작 시 restore()(서버 검증)가 끝난 뒤 setInitialized(true) 한다.
         }
       }
     }

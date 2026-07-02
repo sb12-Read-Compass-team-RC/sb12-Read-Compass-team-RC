@@ -1,6 +1,6 @@
 package com.rc.readcompass.jwt.dto;
 
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.entity.UserRole;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;

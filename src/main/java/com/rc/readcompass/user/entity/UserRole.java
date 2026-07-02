@@ -1,4 +1,4 @@
-package com.rc.readcompass.user;
+package com.rc.readcompass.user.entity;
 
 
 public enum UserRole {

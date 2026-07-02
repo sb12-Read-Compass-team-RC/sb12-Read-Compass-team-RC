@@ -1,4 +1,4 @@
-package com.rc.readcompass.user;
+package com.rc.readcompass.user.entity;
 
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
 import com.rc.readcompass.oauth2.dto.AuthProvider;

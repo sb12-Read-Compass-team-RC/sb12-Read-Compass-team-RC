@@ -13,6 +13,25 @@ export default function ClientLayout({
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const sessionExpired = useAuthStore(state => state.sessionExpired);
+  const restore = useAuthStore(state => state.restore);
+  const setInitialized = useAuthStore(state => state.setInitialized);
+
+  // 앱 시작(및 새로고침) 시 서버에 세션이 살아있는지 검증한다.
+  // 검증이 끝난 뒤에야 초기화 완료(setInitialized)로 표시하므로,
+  // 저장된 localStorage 값만으로 로그인 상태가 유지되는 문제를 막는다.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        await restore();
+      } finally {
+        if (active) setInitialized(true);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [restore, setInitialized]);
 
   // 리프레시 토큰 만료/소실로 재발급이 실패하면(client.ts 인터셉터가 발생시키는
   // "auth:expired" 이벤트) 로그인 상태를 초기화하고 로그인 페이지로 보낸다.

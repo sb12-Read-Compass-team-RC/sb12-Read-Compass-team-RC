@@ -9,7 +9,7 @@ import com.rc.readcompass.comments.dto.CommentDto;
 import com.rc.readcompass.comments.dto.CommentSearchRequest;
 import com.rc.readcompass.comments.entity.QComment;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
-import com.rc.readcompass.user.QUser;
+import com.rc.readcompass.user.entity.QUser;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

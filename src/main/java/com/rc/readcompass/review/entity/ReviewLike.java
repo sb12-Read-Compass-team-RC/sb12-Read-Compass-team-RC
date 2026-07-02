@@ -1,7 +1,7 @@
 package com.rc.readcompass.review.entity;
 
 import com.rc.readcompass.common.domain.BaseEntity;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

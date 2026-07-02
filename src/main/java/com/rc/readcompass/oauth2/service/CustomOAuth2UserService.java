@@ -5,10 +5,11 @@ import com.rc.readcompass.oauth2.entity.CustomOAuth2User;
 import com.rc.readcompass.oauth2.dto.GoogleResponse;
 import com.rc.readcompass.oauth2.dto.NaverResponse;
 import com.rc.readcompass.oauth2.dto.OAuth2Response;
-import com.rc.readcompass.user.User;
-import com.rc.readcompass.user.UserRepository;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.entity.User;
+import com.rc.readcompass.user.Repository.UserRepository;
+import com.rc.readcompass.user.entity.UserRole;
 import java.time.Instant;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -62,7 +63,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     // 4. DB 조회 → 신규 가입 or 업데이트
     User user = userRepository.findByEmail(email)
-        .map(existing -> updateExistingUser(existing))
+        .map(existing -> {
+          // 논리 삭제(회원탈퇴)된 사용자는 로그인할 수 없다.
+          if (existing.isDeleted()) {
+            throw new OAuth2AuthenticationException("탈퇴한 사용자입니다.");
+          }
+          return updateExistingUser(existing);
+        })
         .orElseGet(() -> registerNewUser(oAuth2Response));
 
     return new CustomOAuth2User(user, oAuth2Response);
@@ -98,23 +105,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
   }
 
   /**
-   * 닉네임 중복 시 숫자 suffix 를 붙여 고유하게 만든다.
-   * ex) 홍길동 → 홍길동2 → 홍길동3 ...
+   * 소셜 로그인 닉네임은 이름 뒤에 랜덤 코드를 붙여 고유하게 만든다.
+   * ex) 장현우 → 장현우_a1b2c3
    */
   private String resolveUniqueNickname(String base) {
-    // 50자 제한(컬럼) 고려하여 기본 닉네임 자름
+    // 50자 컬럼 제한 고려: 뒤에 붙일 코드("_" + 6자리 = 7자) 공간 확보
     String trimmed = base.length() > 40 ? base.substring(0, 40) : base;
 
-    if (!userRepository.existsByNickname(trimmed)) {
-      return trimmed;
-    }
-    int suffix = 2;
-    while (true) {
-      String candidate = trimmed + suffix;
-      if (!userRepository.existsByNickname(candidate)) {
+    for (int attempt = 0; attempt < 10; attempt++) {
+      String code = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+      String candidate = trimmed + "_" + code;
+      if (!userRepository.existsByNicknameAndDeletedFalse(candidate)) {
         return candidate;
       }
-      suffix++;
     }
+    // 극히 드문 충돌 대비 fallback (더 긴 코드)
+    return trimmed + "_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
   }
 }

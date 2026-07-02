@@ -46,6 +46,7 @@ public class ReissueController {
   private final RefreshRepository refreshRepository;
   private final RefreshTokenService refreshTokenService;
   private final CookieUtil cookieUtil;
+  private final com.rc.readcompass.user.Repository.UserRepository userRepository;
 
   @PostMapping("/reissue")
   public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
@@ -81,6 +82,11 @@ public class ReissueController {
     UUID userId    = UUID.fromString(claims.get("userId", String.class));
     String username = claims.get("username", String.class);
     String role     = claims.get("role", String.class);
+
+    // 사용자가 DB에 실제로 존재하고 탈퇴하지 않았는지 확인한다.
+    if (!userRepository.existsByIdAndDeletedFalse(userId)) {
+      return unauthorized("유효하지 않은 사용자입니다. 다시 로그인하세요.");
+    }
 
     String newAccess  = jwtUtil.createJwt(TokenType.ACCESS.category(), userId, username, role, accessExpireMs);
     String newRefresh = jwtUtil.createJwt(TokenType.REFRESH.category(), userId, username, role, refreshExpireMs);
