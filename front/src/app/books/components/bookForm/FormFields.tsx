@@ -131,9 +131,14 @@ export default function FormFields({
         } else if (status === 413) {
           showTooltip("파일 용량이 초과되었습니다.", tooltipErrorImg);
         } else if (status === 400) {
+          const validationMessage =
+              Array.isArray(responseData?.details)
+                  ? responseData.details[0]
+                  : responseData?.message;
+
           showTooltip(
-            "입력하신 정보를 확인 후 다시 시도해주세요.",
-            tooltipErrorImg
+              validationMessage || "입력하신 정보를 확인 후 다시 시도해주세요.",
+              tooltipErrorImg
           );
         } else if (status) {
           showTooltip(
