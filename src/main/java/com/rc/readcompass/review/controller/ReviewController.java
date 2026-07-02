@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -28,7 +29,7 @@ public class ReviewController {
     private final ReviewRankingService reviewRankingService;
 
     @GetMapping("/popular")
-    public SliceCursorPageResponse<PopularReviewDto> getPopularReviews(
+    public ResponseEntity<SliceCursorPageResponse<PopularReviewDto>> getPopularReviews(
             @RequestParam(defaultValue = "DAILY") PeriodType period,
             @RequestParam(defaultValue = "ASC") Order direction,
             @RequestParam(required = false) String cursor,
@@ -37,76 +38,82 @@ public class ReviewController {
             Instant after,
             @RequestParam(defaultValue = "50") int limit
     ) {
-        System.out.println("======================= 인기 리뷰 API 진입 =======================");
-        return reviewRankingService.getPopularReviews(
+        return ResponseEntity.ok(reviewRankingService.getPopularReviews(
                 period,
                 direction,
                 cursor,
                 after,
                 limit
+            )
         );
     }
 
     // 리뷰 등록
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReviewDto createReview(
+    public ResponseEntity<ReviewDto> createReview(
             @Valid @RequestBody ReviewCreateRequest request
     ) {
-        return reviewService.createReview(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(reviewService.createReview(request)
+                );
     }
 
     // 리뷰 좋아요 / 좋아요 취소
     @PostMapping("/{reviewId}/like")
-    public ReviewLikeDto likeReview(
+    public ResponseEntity<ReviewLikeDto> likeReview(
             @PathVariable UUID reviewId,
             @RequestHeader(REQUEST_USER_ID_HEADER) UUID requestUserId
     ) {
-        return reviewLikeService.toggleLike(reviewId, requestUserId);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(reviewLikeService.toggleLike(reviewId, requestUserId)
+                );
     }
 
     // 리뷰 상세 정보 조회
     @GetMapping("/{reviewId}")
-    public ReviewDto getReview(
+    public ResponseEntity<ReviewDto> getReview(
             @PathVariable UUID reviewId,
             @RequestHeader(REQUEST_USER_ID_HEADER) UUID requestUserId
     ) {
-        return reviewService.getReview(reviewId, requestUserId);
+        return ResponseEntity.ok(reviewService.getReview(reviewId, requestUserId));
     }
 
     // 리뷰 수정
     @PatchMapping("/{reviewId}")
-    public ReviewDto updateReview(
+    public ResponseEntity<ReviewDto> updateReview(
             @PathVariable UUID reviewId,
             @RequestHeader(REQUEST_USER_ID_HEADER) UUID requestUserId,
             @Valid @RequestBody ReviewUpdateRequest request
     ) {
-        return reviewService.updateReview(reviewId, requestUserId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.updateReview(reviewId, requestUserId, request));
     }
 
     // 리뷰 논리 삭제
     @DeleteMapping("/{reviewId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteReview(
+    public ResponseEntity<Void> deleteReview(
             @PathVariable UUID reviewId,
             @RequestHeader(REQUEST_USER_ID_HEADER) UUID requestUserId
     ) {
         reviewService.deleteReview(reviewId, requestUserId);
+        return ResponseEntity.noContent().build();
     }
 
     // 리뷰 물리 삭제
     @DeleteMapping("/{reviewId}/hard")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void permanentDeleteReview(
+    public ResponseEntity<Void> permanentDeleteReview(
             @PathVariable UUID reviewId,
             @RequestHeader(REQUEST_USER_ID_HEADER) UUID requestUserId
     ) {
         reviewService.permanentDeleteReview(reviewId, requestUserId);
+        return ResponseEntity.noContent().build();
     }
 
     // 리뷰 목록 조회
     @GetMapping
-    public SliceCursorPageResponse<ReviewDto> searchReviews(
+    public ResponseEntity<SliceCursorPageResponse<ReviewDto>> searchReviews(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) UUID bookId,
             @RequestParam(required = false) String keyword,
@@ -119,8 +126,6 @@ public class ReviewController {
             @RequestParam(defaultValue = "50") int limit,
             @RequestHeader(REQUEST_USER_ID_HEADER) UUID requestUserId
     ) {
-        System.out.println("======================= 일반 리뷰 목록 API 진입 =======================");
-
         ReviewSearchRequest request = new ReviewSearchRequest(
                 userId,
                 bookId,
@@ -133,6 +138,6 @@ public class ReviewController {
                 requestUserId
         );
 
-        return reviewService.searchReviews(request);
+        return ResponseEntity.ok(reviewService.searchReviews(request));
     }
 }
