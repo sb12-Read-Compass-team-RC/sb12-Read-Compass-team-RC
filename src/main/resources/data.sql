@@ -51,7 +51,16 @@ INSERT INTO tb_books (id, title, author, description, publisher, published_date,
 -- BINARY CONTENT (도서 썸네일)
 -- =====================================================
 INSERT INTO tb_binary_content (id, book_id, origin_file_url, renamed_file_url, size, content_type, created_at) VALUES
-('f0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'https://cdn.booklog.com/origin/sample.jpg',  '1.jpg', 245120, 'image/jpeg', NOW());
+('f0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'the-vegetarian-cover.png',  'book-001.png', 375808, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'human-acts-cover.png',  'book-002.png', 577983, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'kim-jiyoung-born-1982-cover.png',  'book-003.png', 101797, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', 'sapiens-cover.png',  'book-004.png', 221807, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', 'guns-germs-and-steel-cover.png',  'book-005.png', 548867, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'cosmos-cover.png',  'book-006.png', 276107, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000007', 'clean-code-cover.png',  'book-007.png', 147397, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000008', 'the-courage-to-be-disliked-cover.png',  'book-008.png', 576069, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000009', 'b0000000-0000-0000-0000-000000000009', 'the-psychology-of-money-cover.png',  'book-009.png', 405751, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000010', 'b0000000-0000-0000-0000-000000000010', 'the-little-prince-cover.png',  'book-010.png', 155508, 'image/png', NOW());
 
 -- =====================================================
 -- REVIEWS
