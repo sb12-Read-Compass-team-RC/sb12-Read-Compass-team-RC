@@ -6,6 +6,7 @@ import com.rc.readcompass.jwt.entity.CustomUserDetails;
 import com.rc.readcompass.jwt.util.JWTUtil;
 import com.rc.readcompass.jwt.util.JwtHeaders;
 import com.rc.readcompass.user.entity.UserRole;
+import com.rc.readcompass.user.Repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -25,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
     // 재발급 요청은 만료된 access 토큰을 들고 와도 통과해야 하므로 이 필터를 건너뛴다.
     @Override
@@ -65,6 +67,13 @@ public class JWTFilter extends OncePerRequestFilter {
         UUID userId     = UUID.fromString(claims.get("userId", String.class));
         String username = claims.get("username", String.class);
         String role     = claims.get("role", String.class);
+
+        // 토큰 서명이 유효해도, 해당 사용자가 DB에 실제로 존재하고 탈퇴하지 않았는지 확인한다.
+        // (DB 초기화/회원 탈퇴 후 남아있는 토큰만으로 로그인 상태가 유지되는 것을 방지)
+        if (!userRepository.existsByIdAndDeletedFalse(userId)) {
+            unauthorized(response, "user not found");
+            return;
+        }
 
         AuthDto authDto = new AuthDto();
         authDto.setId(userId);

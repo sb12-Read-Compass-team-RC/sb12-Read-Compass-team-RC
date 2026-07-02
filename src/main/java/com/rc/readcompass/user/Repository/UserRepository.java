@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByNicknameAndDeletedFalse(String nickname);
 
     Optional<User> findByIdAndDeletedFalse(UUID id); //닉네임 수정
+
+    // 인증 시 사용자가 DB에 존재하고 탈퇴하지 않았는지 확인
+    boolean existsByIdAndDeletedFalse(UUID id);
 }

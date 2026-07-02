@@ -10,6 +10,7 @@ import com.rc.readcompass.jwt.util.JWTUtil;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginFailureHandler;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.rc.readcompass.oauth2.service.CustomOAuth2UserService;
+import com.rc.readcompass.user.Repository.UserRepository;
 import jakarta.servlet.DispatcherType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class SecurityConfig {
   private final RefreshRepository refreshRepository;
   private final RefreshTokenService refreshTokenService;
   private final CookieUtil cookieUtil;
+  private final UserRepository userRepository;
 
   private final CustomOAuth2UserService customOAuth2UserService;
   private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
@@ -108,7 +110,7 @@ public class SecurityConfig {
         .failureHandler(oAuth2LoginFailureHandler)
     );
 
-    http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+    http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), LoginFilter.class);
 
     http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, cookieUtil, accessExpireMs, refreshExpireMs), UsernamePasswordAuthenticationFilter.class);
 
