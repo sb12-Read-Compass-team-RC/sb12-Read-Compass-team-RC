@@ -5,7 +5,7 @@ import com.rc.readcompass.jwt.dto.AuthDto;
 import com.rc.readcompass.jwt.entity.CustomUserDetails;
 import com.rc.readcompass.jwt.util.JWTUtil;
 import com.rc.readcompass.jwt.util.JwtHeaders;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.entity.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

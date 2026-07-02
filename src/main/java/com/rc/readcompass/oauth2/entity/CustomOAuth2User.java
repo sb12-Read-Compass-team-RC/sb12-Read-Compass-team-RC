@@ -1,8 +1,8 @@
 package com.rc.readcompass.oauth2.entity;
 
 import com.rc.readcompass.oauth2.dto.OAuth2Response;
-import com.rc.readcompass.user.User;
-import com.rc.readcompass.user.UserRole;
+import com.rc.readcompass.user.entity.User;
+import com.rc.readcompass.user.entity.UserRole;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

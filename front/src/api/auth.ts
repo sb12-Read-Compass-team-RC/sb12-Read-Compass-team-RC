@@ -1,3 +1,4 @@
+import axios from "axios";
 import { apiClient, API_ENDPOINTS } from "./client";
 import { tokenStore } from "./tokenStore";
 import type {
@@ -105,6 +106,19 @@ export const patchUserProfile = async (userId: string, data: string) => {
     );
   } catch (error) {
     console.error("사용자 프로필 수정 API 에러:", error);
+    // 서버가 내려준 구체적 메시지(중복 닉네임 등)를 살려서 전달한다.
+    if (axios.isAxiosError(error)) {
+      const body = error.response?.data as
+        | { message?: string; details?: string[] }
+        | undefined;
+      const serverMessage = body?.details?.[0] ?? body?.message;
+      if (error.response?.status === 409) {
+        throw new Error(serverMessage ?? "이미 사용 중인 닉네임입니다.");
+      }
+      if (serverMessage) {
+        throw new Error(serverMessage);
+      }
+    }
     throw new Error("사용자 정보를 수정하는데 실패했습니다.");
   }
 };

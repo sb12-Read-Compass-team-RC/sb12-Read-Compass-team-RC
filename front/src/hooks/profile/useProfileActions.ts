@@ -33,6 +33,9 @@ export const useProfileActions = (
       showTooltip("프로필 수정이 완료되었습니다!");
     } catch (error) {
       console.error("닉네임 변경 실패:", error);
+      showTooltip(
+        error instanceof Error ? error.message : "닉네임 변경에 실패했습니다."
+      );
     } finally {
       setSubmitLoading(false);
     }
@@ -48,6 +51,11 @@ export const useProfileActions = (
       showTooltip("탈퇴가 완료되었습니다!");
     } catch (error) {
       console.error("회원 탈퇴 실패:", error);
+      showTooltip(
+        error instanceof Error ? error.message : "회원 탈퇴에 실패했습니다."
+      );
+    } finally {
+      setSubmitLoading(false);
     }
   };
 

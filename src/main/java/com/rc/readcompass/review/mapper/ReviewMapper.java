@@ -1,14 +1,12 @@
 package com.rc.readcompass.review.mapper;
 
 import com.rc.readcompass.book.entity.Book;
-import com.rc.readcompass.review.dto.PopularReviewDto;
 import com.rc.readcompass.review.dto.ReviewCreateRequest;
 import com.rc.readcompass.review.dto.ReviewDto;
 import com.rc.readcompass.review.dto.ReviewLikeDto;
 import com.rc.readcompass.review.entity.Review;
 import com.rc.readcompass.review.entity.ReviewLike;
-import com.rc.readcompass.review.entity.ReviewRanking;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

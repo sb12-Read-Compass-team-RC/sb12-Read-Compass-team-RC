@@ -93,10 +93,18 @@ CREATE TABLE tb_users (
     updated_at      TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_tb_users PRIMARY KEY (id),
-    CONSTRAINT uk_tb_users_username UNIQUE (username),
-    CONSTRAINT uk_tb_users_email UNIQUE (email),
     CONSTRAINT uk_tb_users_provider_provider_id UNIQUE (provider, provider_id)
 );
+
+-- 닉네임/이메일 유니크는 논리 삭제되지 않은(활성) 사용자에게만 적용한다.
+-- (탈퇴한 사용자가 점유하던 닉네임/이메일을 재사용할 수 있도록)
+CREATE UNIQUE INDEX uk_tb_users_username_not_deleted
+ON tb_users (username)
+WHERE is_deleted = false;
+
+CREATE UNIQUE INDEX uk_tb_users_email_not_deleted
+ON tb_users (email)
+WHERE is_deleted = false;
 
 -- =====================================================
 -- BOOKS

@@ -10,7 +10,7 @@ import com.rc.readcompass.notification.entity.NotificationType;
 import com.rc.readcompass.notification.mapper.NotificationMapper;
 import com.rc.readcompass.notification.repository.NotificationRepository;
 import com.rc.readcompass.review.entity.Review;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

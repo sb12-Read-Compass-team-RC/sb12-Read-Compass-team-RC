@@ -2,7 +2,7 @@ package com.rc.readcompass.review.entity;
 
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.common.domain.BaseUpdatableEntity;
-import com.rc.readcompass.user.User;
+import com.rc.readcompass.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
