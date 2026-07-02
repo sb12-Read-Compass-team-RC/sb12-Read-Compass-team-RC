@@ -126,6 +126,12 @@ export default function ReviewHeader({
     }
   };
 
+  const handleMoveToBookDetail = () => {
+    if (!review?.bookId) return;
+
+    navigate(`/books/${review.bookId}`);
+  };
+
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -136,7 +142,9 @@ export default function ReviewHeader({
   return (
       <>
         <div className="flex gap-6">
-          <div className="w-[118px] h-[178px] min-w-[118px] relative border rounded-lg overflow-hidden">
+          <div className="w-[118px] h-[178px] min-w-[118px] relative border rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={handleMoveToBookDetail}
+          >
             <img
                 src={review?.bookThumbnailUrl || getImagePath("/books/imgError.png")}
                 alt={review?.bookTitle || "도서 이미지"}
@@ -150,7 +158,10 @@ export default function ReviewHeader({
 
           <div className="flex flex-col gap-[10px] flex-1">
             <div className="flex items-start justify-between gap-4">
-              <div className="text-body4 font-medium text-gray-500 underline decoration-solid underline-offset-0 decoration-0 line-clamp-2">
+              <div
+                  className="text-body4 font-medium text-gray-500 underline decoration-solid underline-offset-0 decoration-0 line-clamp-2 cursor-pointer hover:text-gray-700"
+                  onClick={handleMoveToBookDetail}
+              >
                 {review?.bookTitle ||
                     (error
                         ? "리뷰를 불러오는데 실패했습니다."
