@@ -92,7 +92,7 @@ public class SecurityConfig {
         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
         .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
-            "/*.ico", "/*.png").permitAll()
+            "/attachments/**", "/*.ico", "/*.png").permitAll()
         // 소셜 로그인 콜백 (로그인 전 단계이므로 개방)
         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
         // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
