@@ -93,10 +93,18 @@ CREATE TABLE tb_users (
     updated_at      TIMESTAMPTZ NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_tb_users PRIMARY KEY (id),
-    CONSTRAINT uk_tb_users_username UNIQUE (username),
-    CONSTRAINT uk_tb_users_email UNIQUE (email),
     CONSTRAINT uk_tb_users_provider_provider_id UNIQUE (provider, provider_id)
 );
+
+-- 닉네임/이메일 유니크는 논리 삭제되지 않은(활성) 사용자에게만 적용한다.
+-- (탈퇴한 사용자가 점유하던 닉네임/이메일을 재사용할 수 있도록)
+CREATE UNIQUE INDEX uk_tb_users_username_not_deleted
+ON tb_users (username)
+WHERE is_deleted = false;
+
+CREATE UNIQUE INDEX uk_tb_users_email_not_deleted
+ON tb_users (email)
+WHERE is_deleted = false;
 
 -- =====================================================
 -- BOOKS
@@ -108,7 +116,7 @@ CREATE TABLE tb_books (
     description     TEXT NOT NULL,
     publisher       VARCHAR(100) NOT NULL,
     published_date  DATE NOT NULL,
-    isbn            VARCHAR(20) NULL,
+    isbn            VARCHAR(20) NOT NULL,
     category        book_category NOT NULL,
     review_cnt      INTEGER DEFAULT 0 NOT NULL,
     rating          DOUBLE PRECISION DEFAULT 0 NOT NULL,
@@ -173,14 +181,15 @@ CREATE TABLE tb_reviews (
             REFERENCES tb_users (id)
             ON DELETE CASCADE,
 
-    -- 도서별 사용자 1명당 리뷰 1개
-    CONSTRAINT uk_tb_reviews_book_user UNIQUE (book_id, user_id),
-
     CONSTRAINT chk_tb_reviews_rating CHECK (rating BETWEEN 1 AND 5),
     CONSTRAINT chk_tb_reviews_like_cnt CHECK (like_cnt >= 0),
     CONSTRAINT chk_tb_reviews_comment_cnt CHECK (comment_cnt >= 0),
     CONSTRAINT chk_tb_reviews_content_not_blank CHECK (length(trim(content)) > 0)
 );
+
+CREATE UNIQUE INDEX uk_tb_reviews_book_user_not_deleted
+ON tb_reviews (book_id, user_id)
+WHERE is_deleted = false;
 
 -- =====================================================
 -- COMMENTS
@@ -246,6 +255,7 @@ CREATE TABLE tb_notifications (
     noti_type       VARCHAR(30) NOT NULL,
     confirmed       BOOLEAN DEFAULT false NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    confirmed_at    TIMESTAMPTZ NULL,
 
     CONSTRAINT pk_tb_notifications PRIMARY KEY (id),
 
@@ -300,11 +310,6 @@ CREATE TABLE tb_book_rankings (
 
     CONSTRAINT pk_tb_book_rankings PRIMARY KEY (id),
 
-    CONSTRAINT fk_tb_book_rankings_book
-      FOREIGN KEY (book_id)
-          REFERENCES tb_books (id)
-          ON DELETE CASCADE,
-
     CONSTRAINT chk_tb_book_rankings_period_type
       CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'ALL_TIME')),
 
@@ -334,11 +339,6 @@ CREATE TABLE tb_review_rankings (
 
     CONSTRAINT pk_tb_review_rankings PRIMARY KEY (id),
 
-    CONSTRAINT fk_tb_review_rankings_review
-        FOREIGN KEY (review_id)
-            REFERENCES tb_reviews (id)
-            ON DELETE CASCADE,
-
     CONSTRAINT chk_tb_review_rankings_period_type
         CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'ALL_TIME')),
 
@@ -365,11 +365,6 @@ CREATE TABLE tb_user_rankings (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_tb_user_rankings PRIMARY KEY (id),
-
-    CONSTRAINT fk_tb_user_rankings_user
-      FOREIGN KEY (user_id)
-          REFERENCES tb_users (id)
-          ON DELETE CASCADE,
 
     CONSTRAINT chk_tb_user_rankings_period_type
       CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'ALL_TIME')),

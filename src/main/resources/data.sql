@@ -9,12 +9,12 @@
 -- [샘플 계정] 비밀번호 해시는 더미값 (로그인 불가, 데이터 확인용)
 -- =====================================================
 INSERT INTO tb_users (id, username, email, password, role, provider, provider_id, last_login_at, is_deleted, created_at, updated_at) VALUES
--- ★ 실제 로그인 가능 계정 (비밀번호: 12345678)
-('00000000-0000-0000-0000-000000000001', 'asd',         'asd@asd.com',         '12345678', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
-('00000000-0000-0000-0000-000000000002', 'qwe',         'qwe@qwe.com',         '$2b$10$BGLkPQ1NejDzKkb24BaFzemXKhPtRAn7v08WujHck.NPmm7TFQTMa', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
+-- ★ 실제 로그인 가능 계정 (비밀번호: 12345678a@)
+('00000000-0000-0000-0000-000000000001', 'asd',         'asd@asd.com',         '$2y$10$JRExst8./of0etVbgNWLM.7m.qZd2sr0x54aaflDajPE8Mojm8.J.', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
+('00000000-0000-0000-0000-000000000002', 'qwe',         'qwe@qwe.com',         '$2y$10$JRExst8./of0etVbgNWLM.7m.qZd2sr0x54aaflDajPE8Mojm8.J.', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 
 -- ADMIN
-('a0000000-0000-0000-0000-000000000001', 'admin',       'admin@booklog.com',   '$2b$10$BGLkPQ1NejDzKkb24BaFzemXKhPtRAn7v08WujHck.NPmm7TFQTMa', 'ADMIN', 'LOCAL', NULL, NOW(), false, NOW(), NOW()),
+('a0000000-0000-0000-0000-000000000001', 'admin',       'admin@admin.com',   '$2y$10$JRExst8./of0etVbgNWLM.7m.qZd2sr0x54aaflDajPE8Mojm8.J.', 'ADMIN', 'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 
 -- 샘플 유저 (더미 해시, 로그인 불가)
 ('d0000000-0000-0000-0000-000000000001', 'kim_reader',  'kim@example.com',     '$2a$10$FAKEHASHFAKEHASHFAKEHASHFAKEHASHFAKEHASHFAKEHASHFAKEHA', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
@@ -51,17 +51,16 @@ INSERT INTO tb_books (id, title, author, description, publisher, published_date,
 -- BINARY CONTENT (도서 썸네일)
 -- =====================================================
 INSERT INTO tb_binary_content (id, book_id, origin_file_url, renamed_file_url, size, content_type, created_at) VALUES
-('f0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'https://cdn.booklog.com/origin/채식주의자.jpg',  'https://cdn.booklog.com/books/b0001.jpg', 245120, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'https://cdn.booklog.com/origin/소년이온다.jpg',  'https://cdn.booklog.com/books/b0002.jpg', 312400, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'https://cdn.booklog.com/origin/김지영.jpg',      'https://cdn.booklog.com/books/b0003.jpg', 198500, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', 'https://cdn.booklog.com/origin/사피엔스.jpg',    'https://cdn.booklog.com/books/b0004.jpg', 278300, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', 'https://cdn.booklog.com/origin/총균쇠.jpg',      'https://cdn.booklog.com/books/b0005.jpg', 265000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'https://cdn.booklog.com/origin/코스모스.jpg',    'https://cdn.booklog.com/books/b0006.jpg', 320000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000007', 'https://cdn.booklog.com/origin/클린코드.jpg',    'https://cdn.booklog.com/books/b0007.jpg', 290000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000008', 'https://cdn.booklog.com/origin/미움받을용기.jpg','https://cdn.booklog.com/books/b0008.jpg', 210000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000009', 'b0000000-0000-0000-0000-000000000009', 'https://cdn.booklog.com/origin/돈의심리학.jpg',  'https://cdn.booklog.com/books/b0009.jpg', 230000, 'image/jpeg', NOW()),
-('f0000000-0000-0000-0000-000000000010', 'b0000000-0000-0000-0000-000000000010', 'https://cdn.booklog.com/origin/어린왕자.jpg',    'https://cdn.booklog.com/books/b0010.jpg', 185000, 'image/jpeg', NOW());
-
+('f0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'the-vegetarian-cover.png',  'book-001.png', 375808, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000002', 'b0000000-0000-0000-0000-000000000002', 'human-acts-cover.png',  'book-002.png', 577983, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000003', 'b0000000-0000-0000-0000-000000000003', 'kim-jiyoung-born-1982-cover.png',  'book-003.png', 101797, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000004', 'b0000000-0000-0000-0000-000000000004', 'sapiens-cover.png',  'book-004.png', 221807, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000005', 'b0000000-0000-0000-0000-000000000005', 'guns-germs-and-steel-cover.png',  'book-005.png', 548867, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000006', 'b0000000-0000-0000-0000-000000000006', 'cosmos-cover.png',  'book-006.png', 276107, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000007', 'b0000000-0000-0000-0000-000000000007', 'clean-code-cover.png',  'book-007.png', 147397, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000008', 'b0000000-0000-0000-0000-000000000008', 'the-courage-to-be-disliked-cover.png',  'book-008.png', 576069, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000009', 'b0000000-0000-0000-0000-000000000009', 'the-psychology-of-money-cover.png',  'book-009.png', 405751, 'image/png', NOW()),
+('f0000000-0000-0000-0000-000000000010', 'b0000000-0000-0000-0000-000000000010', 'the-little-prince-cover.png',  'book-010.png', 155508, 'image/png', NOW());
 
 -- =====================================================
 -- REVIEWS
@@ -272,23 +271,23 @@ INSERT INTO tb_review_likes (id, review_id, user_id, created_at) VALUES
 -- =====================================================
 -- NOTIFICATIONS
 -- =====================================================
-INSERT INTO tb_notifications (id, user_id, review_id, message, noti_type, confirmed, created_at) VALUES
+INSERT INTO tb_notifications (id, user_id, review_id, message, noti_type, confirmed, created_at, confirmed_at) VALUES
 -- 리뷰 좋아요 알림
-('20000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 lee_bookworm님이 좋아요를 눌렀습니다.',         'REVIEW_LIKE',    true,  NOW() - INTERVAL '9 days'),
-('20000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 choi_sci님이 좋아요를 눌렀습니다.',            'REVIEW_LIKE',    true,  NOW() - INTERVAL '8 days'),
-('20000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 google_user1님이 좋아요를 눌렀습니다.',        'REVIEW_LIKE',    false, NOW() - INTERVAL '7 days'),
-('20000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000006', 'kim_reader님의 리뷰에 park_novel님이 좋아요를 눌렀습니다.',          'REVIEW_LIKE',    false, NOW() - INTERVAL '13 days'),
+('20000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 lee_bookworm님이 좋아요를 눌렀습니다.', 'REVIEW_LIKE', true,  NOW() - INTERVAL '9 days',  NOW() - INTERVAL '8 days'),
+('20000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 choi_sci님이 좋아요를 눌렀습니다.', 'REVIEW_LIKE', true,  NOW() - INTERVAL '8 days',  NOW() - INTERVAL '7 days'),
+('20000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 google_user1님이 좋아요를 눌렀습니다.', 'REVIEW_LIKE', false, NOW() - INTERVAL '7 days', NULL),
+('20000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000006', 'kim_reader님의 리뷰에 park_novel님이 좋아요를 눌렀습니다.', 'REVIEW_LIKE', false, NOW() - INTERVAL '13 days', NULL),
 
 -- 리뷰 댓글 알림
-('20000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 lee_bookworm님이 댓글을 남겼습니다.',          'REVIEW_COMMENT', true,  NOW() - INTERVAL '9 days'),
-('20000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 park_novel님이 댓글을 남겼습니다.',            'REVIEW_COMMENT', true,  NOW() - INTERVAL '8 days'),
-('20000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000006', 'kim_reader님의 리뷰에 lee_bookworm님이 댓글을 남겼습니다.',          'REVIEW_COMMENT', false, NOW() - INTERVAL '14 days'),
-('20000000-0000-0000-0000-000000000008', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000020', 'lee_bookworm님의 리뷰에 choi_sci님이 댓글을 남겼습니다.',            'REVIEW_COMMENT', true,  NOW() - INTERVAL '34 days'),
-('20000000-0000-0000-0000-000000000009', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000020', 'lee_bookworm님의 리뷰에 jung_history님이 댓글을 남겼습니다.',        'REVIEW_COMMENT', false, NOW() - INTERVAL '33 days'),
+('20000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 lee_bookworm님이 댓글을 남겼습니다.', 'REVIEW_COMMENT', true,  NOW() - INTERVAL '9 days',  NOW() - INTERVAL '8 days'),
+('20000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'kim_reader님의 리뷰에 park_novel님이 댓글을 남겼습니다.', 'REVIEW_COMMENT', true,  NOW() - INTERVAL '8 days',  NOW() - INTERVAL '7 days'),
+('20000000-0000-0000-0000-000000000007', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000006', 'kim_reader님의 리뷰에 lee_bookworm님이 댓글을 남겼습니다.', 'REVIEW_COMMENT', false, NOW() - INTERVAL '14 days', NULL),
+('20000000-0000-0000-0000-000000000008', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000020', 'lee_bookworm님의 리뷰에 choi_sci님이 댓글을 남겼습니다.', 'REVIEW_COMMENT', true,  NOW() - INTERVAL '34 days', NOW() - INTERVAL '33 days'),
+('20000000-0000-0000-0000-000000000009', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000020', 'lee_bookworm님의 리뷰에 jung_history님이 댓글을 남겼습니다.', 'REVIEW_COMMENT', false, NOW() - INTERVAL '33 days', NULL),
 
 -- 리뷰 랭킹 알림
-('20000000-0000-0000-0000-000000000010', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000006', 'kim_reader님의 리뷰가 주간 베스트 리뷰 1위에 선정되었습니다.',        'REVIEW_RANKED',  true,  NOW() - INTERVAL '7 days'),
-('20000000-0000-0000-0000-000000000011', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000020', 'lee_bookworm님의 리뷰가 전체 베스트 리뷰 3위에 선정되었습니다.',     'REVIEW_RANKED',  false, NOW() - INTERVAL '2 days');
+('20000000-0000-0000-0000-000000000010', 'd0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000006', 'kim_reader님의 리뷰가 주간 베스트 리뷰 1위에 선정되었습니다.', 'REVIEW_RANKED', true,  NOW() - INTERVAL '7 days',  NOW() - INTERVAL '6 days'),
+('20000000-0000-0000-0000-000000000011', 'd0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000020', 'lee_bookworm님의 리뷰가 전체 베스트 리뷰 3위에 선정되었습니다.', 'REVIEW_RANKED', false, NOW() - INTERVAL '2 days', NULL);
 
 
 -- =====================================================
