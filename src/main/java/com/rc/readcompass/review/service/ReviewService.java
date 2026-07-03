@@ -22,7 +22,6 @@ import com.rc.readcompass.user.entity.User;
 import com.rc.readcompass.user.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,16 +68,11 @@ public class ReviewService {
 
         Review review = reviewMapper.toEntity(request, book, user);
 
-        try {
-            Review savedReview = reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
             // 도서에 리뷰 갯수 및 평점 계산 요청
-            book.addReview(savedReview.getRating());
-            return toDto(savedReview, userId);
+        book.addReview(savedReview.getRating());
+        return toDto(savedReview, userId);
 
-        } catch (DataIntegrityViolationException e) {
-            // 동시 요청으로 unique 제약에 걸리는 경우 대비
-            throw new ReviewException(ErrorCode.REVIEW_ALREADY_EXISTS, e);
-        }
     }
 
     // 리뷰 상세 정보 조회
@@ -106,6 +100,7 @@ public class ReviewService {
         Review review = getActiveReview(reviewId);
         Book book = getBook(review.getBook().getId());
         int oldRating = review.getRating();
+
         // review 소유자와 요청자가 같은지 확인
         validateOwner(review, requestUserId);
 

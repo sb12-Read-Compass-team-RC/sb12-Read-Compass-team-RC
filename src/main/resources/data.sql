@@ -9,7 +9,7 @@
 -- [샘플 계정] 비밀번호 해시는 더미값 (로그인 불가, 데이터 확인용)
 -- =====================================================
 INSERT INTO tb_users (id, username, email, password, role, provider, provider_id, last_login_at, is_deleted, created_at, updated_at) VALUES
--- ★ 실제 로그인 가능 계정 (비밀번호: 12345678)
+-- ★ 실제 로그인 가능 계정 (비밀번호: 12345678a@)
 ('00000000-0000-0000-0000-000000000001', 'asd',         'asd@asd.com',         '$2y$10$JRExst8./of0etVbgNWLM.7m.qZd2sr0x54aaflDajPE8Mojm8.J.', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 ('00000000-0000-0000-0000-000000000002', 'qwe',         'qwe@qwe.com',         '$2y$10$JRExst8./of0etVbgNWLM.7m.qZd2sr0x54aaflDajPE8Mojm8.J.', 'USER',  'LOCAL', NULL, NOW(), false, NOW(), NOW()),
 
