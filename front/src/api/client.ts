@@ -40,7 +40,7 @@ class ApiClient {
       withCredentials: true // refresh 쿠키 전송을 위해 필수
     });
 
-    // ===== 요청 인터셉터: access 토큰 + User-ID 헤더 첨부 =====
+    // ===== 요청 인터셉터: access 토큰 첨부 =====
     this.axiosInstance.interceptors.request.use(
       config => {
         const token = tokenStore.get();
@@ -48,14 +48,8 @@ class ApiClient {
           config.headers["Authorization"] = `Bearer ${token}`;
         }
 
-        // Deokhugam-Request-User-ID 헤더 주입
-        // authStore 를 직접 import 하면 순환참조가 발생하므로
-        // tokenStore 를 통해 userId 를 읽는다.
-        const userId = tokenStore.getUserId();
-        if (userId) {
-          config.headers["Deokhugam-Request-User-ID"] = userId;
-        }
-
+        // 사용자 식별은 백엔드가 Authorization 토큰에서 직접 꺼내므로
+        // 별도의 User-ID 헤더는 보내지 않는다.
         return config;
       },
       error => Promise.reject(error)

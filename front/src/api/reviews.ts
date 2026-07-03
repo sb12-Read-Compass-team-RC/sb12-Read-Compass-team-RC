@@ -94,9 +94,9 @@ export const getReviews = async (
   );
 };
 
+// 작성자는 백엔드가 토큰에서 식별하므로 userId 를 보내지 않는다.
 export const postReview = async (body: {
   bookId: string;
-  userId: string;
   content: string;
   rating: number;
 }): Promise<Review> => {

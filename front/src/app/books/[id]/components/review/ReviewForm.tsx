@@ -49,7 +49,7 @@ export default function ReviewForm({
     const content = textareaRef.current?.value ?? "";
     setIsLoading(true);
     try {
-      await postReview({ bookId, userId, content, rating });
+      await postReview({ bookId, content, rating });
 
       const refreshed = await getReviews(bookId, { limit: 20 });
       setData(refreshed.content);

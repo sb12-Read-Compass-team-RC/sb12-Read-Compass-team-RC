@@ -55,15 +55,15 @@ public class ReviewService {
 
     // 리뷰 등록
     @Transactional
-    public ReviewDto createReview(ReviewCreateRequest request) {
+    public ReviewDto createReview(ReviewCreateRequest request, UUID userId) {
 
         Book book = getBook(request.bookId());
 
-        User user = userRepository.findById(request.userId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 논리 삭제된 리뷰를 제외하고 중복 검사
-        if (reviewRepository.existsByBookIdAndUserIdAndDeletedFalse(request.bookId(), request.userId())) {
+        if (reviewRepository.existsByBookIdAndUserIdAndDeletedFalse(request.bookId(), userId)) {
             throw new ReviewException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
 
@@ -73,7 +73,7 @@ public class ReviewService {
             Review savedReview = reviewRepository.save(review);
             // 도서에 리뷰 갯수 및 평점 계산 요청
             book.addReview(savedReview.getRating());
-            return toDto(savedReview, request.userId());
+            return toDto(savedReview, userId);
 
         } catch (DataIntegrityViolationException e) {
             // 동시 요청으로 unique 제약에 걸리는 경우 대비
