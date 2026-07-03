@@ -10,10 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record ReviewSearchRequest(
-        @NotNull(message = "사용자 ID는 필수입니다.")
         UUID userId,
-
-        @NotNull(message = "도서 ID는 필수입니다.")
         UUID bookId,
 
         String keyword,
