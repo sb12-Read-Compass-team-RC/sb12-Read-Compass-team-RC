@@ -32,10 +32,10 @@ public class CommentService {
   private final NotificationService notificationService;
 
   @Transactional
-  public CommentDto register(CommentCreateRequest request){
+  public CommentDto register(CommentCreateRequest request, UUID userId){
     Review review = reviewRepository.findByIdAndDeletedFalse(request.reviewId())
         .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-    User user = userRepository.findById(request.userId())
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     Comment comment = commentMapper.toEntity(request, review, user);
     commentRepository.save(comment);

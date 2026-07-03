@@ -7,19 +7,20 @@ import com.rc.readcompass.comments.dto.CommentSearchRequest;
 import com.rc.readcompass.comments.dto.CommentUpdateRequest;
 import com.rc.readcompass.comments.service.CommentService;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
+import com.rc.readcompass.jwt.entity.CustomUserDetails;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,9 +34,10 @@ public class CommentController {
 
   @PostMapping
   public ResponseEntity<CommentDto> register(
-      @Valid @RequestBody CommentCreateRequest request
+      @Valid @RequestBody CommentCreateRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails
   ){
-    CommentDto response = commentService.register(request);
+    CommentDto response = commentService.register(request, userDetails.getUserId());
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -69,28 +71,28 @@ public class CommentController {
   @PatchMapping("/{commentId}")
   public ResponseEntity<CommentDto> update(
       @PathVariable UUID commentId,
-      @RequestHeader("Deokhugam-Request-User-ID") UUID userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails,
       @Valid @RequestBody CommentUpdateRequest request
   ){
-    CommentDto response = commentService.update(commentId, userId, request);
+    CommentDto response = commentService.update(commentId, userDetails.getUserId(), request);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/{commentId}")
   public ResponseEntity<Void> delete(
       @PathVariable UUID commentId,
-      @RequestHeader("Deokhugam-Request-User-ID") UUID userId
+      @AuthenticationPrincipal CustomUserDetails userDetails
   ){
-    commentService.delete(commentId, userId);
+    commentService.delete(commentId, userDetails.getUserId());
     return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping("/{commentId}/hard")
   public ResponseEntity<Void> hardDelete(
       @PathVariable UUID commentId,
-      @RequestHeader("Deokhugam-Request-User-ID") UUID userId
+      @AuthenticationPrincipal CustomUserDetails userDetails
   ){
-    commentService.hardDelete(commentId, userId);
+    commentService.hardDelete(commentId, userDetails.getUserId());
     return ResponseEntity.noContent().build();
   }
 

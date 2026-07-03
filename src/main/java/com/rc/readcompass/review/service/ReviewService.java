@@ -54,24 +54,25 @@ public class ReviewService {
 
     // 리뷰 등록
     @Transactional
-    public ReviewDto createReview(ReviewCreateRequest request) {
+    public ReviewDto createReview(ReviewCreateRequest request, UUID userId) {
 
         Book book = getBook(request.bookId());
 
-        User user = userRepository.findById(request.userId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 논리 삭제된 리뷰를 제외하고 중복 검사
-        if (reviewRepository.existsByBookIdAndUserIdAndDeletedFalse(request.bookId(), request.userId())) {
+        if (reviewRepository.existsByBookIdAndUserIdAndDeletedFalse(request.bookId(), userId)) {
             throw new ReviewException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
 
         Review review = reviewMapper.toEntity(request, book, user);
 
         Review savedReview = reviewRepository.save(review);
-        // 도서의 리뷰 갯수 및 평점 계산 로직 실행
+            // 도서에 리뷰 갯수 및 평점 계산 요청
         book.addReview(savedReview.getRating());
-        return toDto(savedReview, request.userId());
+        return toDto(savedReview, userId);
+
     }
 
     // 리뷰 상세 정보 조회

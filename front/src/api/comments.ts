@@ -39,9 +39,9 @@ export const createComment = async (data: {
     throw new Error("로그인이 필요합니다.");
   }
 
+  // 작성자는 백엔드가 토큰에서 식별하므로 userId 를 보내지 않는다.
   const requestData = {
     reviewId: data.reviewId,
-    userId: authState.user.id,
     content: data.content
   };
 
@@ -63,12 +63,7 @@ export const updateComment = async (data: {
 
   return await apiClient.patch<Comment>(
     `/api/comments/${data.commentId}`,
-    requestData,
-    {
-      headers: {
-        "Deokhugam-Request-User-ID": authState.user.id
-      }
-    }
+    requestData
   );
 };
 
