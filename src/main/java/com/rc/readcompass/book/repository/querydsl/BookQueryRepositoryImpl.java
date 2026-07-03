@@ -38,8 +38,8 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
 
     where.and(b.deleted.isFalse());
 
-    if (request.keyword() != null && !request.keyword().isBlank()) {
-      String keyword = request.keyword().trim();
+    if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
+      String keyword = request.getKeyword().trim();
 
       BooleanBuilder keywordCondition = new BooleanBuilder();
 
@@ -56,18 +56,18 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
       where.and(keywordCondition);
     }
 
-    if (request.category() != null) {
-      where.and(b.category.eq(request.category()));
+    if (request.getCategory() != null) {
+      where.and(b.category.eq(request.getCategory()));
     }
 
     Order order = getOrder(request);
     int size = getSize(request);
-    String sort = getSort(request.sort());
+    String sort = getSort(request.getOrderBy());
 
     NumberExpression<Long> reviewCount = r.id.count();
     NumberExpression<Double> rating = r.rating.avg();
 
-    Book cursorBook = findCursorBook(request.cursor());
+    Book cursorBook = findCursorBook(request.getCursor());
 
     if (cursorBook != null) {
       addCursorCondition(where, having, sort, order, cursorBook, reviewCount, rating);
@@ -201,11 +201,11 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
   }
 
   private Order getOrder(BookSearchRequest request) {
-    if (request.direction() == null) {
+    if (request.getDirection() == null) {
       return Order.DESC;
     }
 
-    if (request.direction() == Order.ASC) {
+    if (request.getDirection() == Order.ASC) {
       return Order.ASC;
     }
 
@@ -213,11 +213,11 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
   }
 
   private int getSize(BookSearchRequest request) {
-    if (request.limit() == null || request.limit() <= 0) {
+    if (request.getLimit() == null || request.getLimit() <= 0) {
       return 10;
     }
 
-    return request.limit();
+    return request.getLimit();
   }
 
   private String getSort(String sort) {

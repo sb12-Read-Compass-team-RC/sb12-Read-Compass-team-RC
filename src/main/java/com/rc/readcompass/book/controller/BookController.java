@@ -8,7 +8,6 @@ import com.rc.readcompass.book.dto.BookUpdateRequest;
 import com.rc.readcompass.book.dto.PopularBookDto;
 import com.rc.readcompass.book.service.BookService;
 import com.rc.readcompass.book.dto.NaverBookDto;
-import com.rc.readcompass.book.entity.BookCategory;
 
 import com.rc.readcompass.book.service.PopularBookService;
 import com.rc.readcompass.common.PeriodType;
@@ -27,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,25 +74,8 @@ public class BookController {
 
   @GetMapping
   public ResponseEntity<SliceCursorPageResponse<BookDto>> searchBooks(
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) BookCategory category,
-      @RequestParam(defaultValue = "title") String orderBy,
-      @RequestParam(defaultValue = "DESC") String direction,
-      @RequestParam(required = false) String cursor,
-      @RequestParam(required = false)
-      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
-      @RequestParam(defaultValue = "50") Integer limit
+      @ModelAttribute BookSearchRequest request
   ) {
-    BookSearchRequest request = BookSearchRequest.builder()
-        .keyword(keyword)
-        .category(category)
-        .sort(orderBy)
-        .direction(parseDirection(direction))
-        .cursor(cursor)
-        .after(after)
-        .limit(limit)
-        .build();
-
     return ResponseEntity.ok(bookService.search(request));
   }
 
