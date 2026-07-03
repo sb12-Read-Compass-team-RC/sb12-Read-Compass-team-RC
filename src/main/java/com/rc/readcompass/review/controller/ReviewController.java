@@ -4,12 +4,7 @@ import com.querydsl.core.types.Order;
 import com.rc.readcompass.common.PeriodType;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.jwt.entity.CustomUserDetails;
-import com.rc.readcompass.review.dto.PopularReviewDto;
-import com.rc.readcompass.review.dto.ReviewCreateRequest;
-import com.rc.readcompass.review.dto.ReviewDto;
-import com.rc.readcompass.review.dto.ReviewLikeDto;
-import com.rc.readcompass.review.dto.ReviewSearchRequest;
-import com.rc.readcompass.review.dto.ReviewUpdateRequest;
+import com.rc.readcompass.review.dto.*;
 import com.rc.readcompass.review.service.ReviewLikeService;
 import com.rc.readcompass.review.service.ReviewRankingService;
 import com.rc.readcompass.review.service.ReviewService;
@@ -129,29 +124,10 @@ public class ReviewController {
     // 리뷰 목록 조회
     @GetMapping
     public ResponseEntity<SliceCursorPageResponse<ReviewDto>> searchReviews(
-            @RequestParam(required = false) UUID userId, // 검색 필터용
-            @RequestParam(required = false) UUID bookId,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "createdAt") String orderBy,
-            @RequestParam(defaultValue = "DESC") Order direction,
-            @RequestParam(required = false) String cursor,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            Instant after,
-            @RequestParam(defaultValue = "50") int limit,
+            @Valid @ModelAttribute ReviewSearchCondition condition,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        ReviewSearchRequest request = new ReviewSearchRequest(
-                userId,
-                bookId,
-                keyword,
-                orderBy,
-                direction,
-                cursor,
-                after,
-                limit,
-                userDetails.getUserId()
-        );
+        ReviewSearchRequest request = condition.toRequest(userDetails.getUserId());
 
         return ResponseEntity.ok(reviewService.searchReviews(request));
     }
