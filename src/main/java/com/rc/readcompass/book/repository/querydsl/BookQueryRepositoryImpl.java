@@ -4,7 +4,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.rc.readcompass.book.entity.Book;
 import com.rc.readcompass.book.entity.BookCategory;
@@ -13,7 +12,6 @@ import com.rc.readcompass.book.entity.QBook;
 import com.rc.readcompass.book.dto.BookDto;
 import com.rc.readcompass.book.dto.BookSearchRequest;
 import com.rc.readcompass.common.slice.SliceCursorPageResponse;
-import com.rc.readcompass.review.entity.QReview;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +27,10 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
 
   private static final QBook b = QBook.book;
   private static final QBinaryContent bc = QBinaryContent.binaryContent;
-  private static final QReview r = QReview.review;
 
   @Override
   public SliceCursorPageResponse<BookDto> searchCursor(BookSearchRequest request) {
     BooleanBuilder where = new BooleanBuilder();
-    BooleanBuilder having = new BooleanBuilder();
 
     where.and(b.deleted.isFalse());
 
@@ -64,16 +60,13 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
     int size = getSize(request);
     String sort = getSort(request.getOrderBy());
 
-    NumberExpression<Long> reviewCount = r.id.count();
-    NumberExpression<Double> rating = r.rating.avg();
-
     Book cursorBook = findCursorBook(request.getCursor());
 
     if (cursorBook != null) {
-      addCursorCondition(where, having, sort, order, cursorBook, reviewCount, rating);
+      addCursorCondition(where, sort, order, cursorBook);
     }
 
-    OrderSpecifier<?>[] orderBy = getOrderBy(sort, order, reviewCount, rating);
+    OrderSpecifier<?>[] orderBy = getOrderBy(sort, order);
 
     List<Tuple> rowsPlusOne = queryFactory
         .select(
@@ -86,32 +79,14 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
             b.isbn,
             b.category,
             bc.renamedFileUrl,
-            reviewCount,
-            rating,
+            b.reviewCnt,
+            b.rating,
             b.createdAt,
             b.updatedAt
         )
         .from(b)
         .leftJoin(bc).on(bc.book.id.eq(b.id))
-        .leftJoin(r).on(
-            r.book.id.eq(b.id)
-                .and(r.deleted.isFalse())
-        )
         .where(where)
-        .groupBy(
-            b.id,
-            b.title,
-            b.author,
-            b.description,
-            b.publisher,
-            b.publishedDate,
-            b.isbn,
-            b.category,
-            bc.renamedFileUrl,
-            b.createdAt,
-            b.updatedAt
-        )
-        .having(having)
         .orderBy(orderBy)
         .limit(size + 1L)
         .fetch();
@@ -128,19 +103,6 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
     List<BookDto> content = new ArrayList<>();
 
     for (Tuple row : contentRows) {
-      Long reviewCountValue = row.get(reviewCount);
-      Double ratingValue = row.get(rating);
-
-      int reviewCountInt = 0;
-      if (reviewCountValue != null) {
-        reviewCountInt = reviewCountValue.intValue();
-      }
-
-      double ratingDouble = 0.0;
-      if (ratingValue != null) {
-        ratingDouble = ratingValue;
-      }
-
       content.add(new BookDto(
           row.get(b.id),
           row.get(b.title),
@@ -152,8 +114,8 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
           row.get(b.category),
           row.get(b.category).getLabel(),
           row.get(bc.renamedFileUrl),
-          reviewCountInt,
-          ratingDouble,
+          row.get(b.reviewCnt),
+          row.get(b.rating),
           row.get(b.createdAt),
           row.get(b.updatedAt)
       ));
@@ -238,9 +200,7 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
 
   private OrderSpecifier<?>[] getOrderBy(
       String sort,
-      Order order,
-      NumberExpression<Long> reviewCount,
-      NumberExpression<Double> rating
+      Order order
   ) {
     if ("publishedDate".equals(sort)) {
       return new OrderSpecifier[]{
@@ -251,14 +211,14 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
 
     if ("rating".equals(sort)) {
       return new OrderSpecifier[]{
-          new OrderSpecifier<>(order, rating),
+          new OrderSpecifier<>(order, b.rating),
           new OrderSpecifier<>(order, b.createdAt)
       };
     }
 
     if ("reviewCount".equals(sort)) {
       return new OrderSpecifier[]{
-          new OrderSpecifier<>(order, reviewCount),
+          new OrderSpecifier<>(order, b.reviewCnt),
           new OrderSpecifier<>(order, b.createdAt)
       };
     }
@@ -271,12 +231,9 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
 
   private void addCursorCondition(
       BooleanBuilder where,
-      BooleanBuilder having,
       String sort,
       Order order,
-      Book cursorBook,
-      NumberExpression<Long> reviewCount,
-      NumberExpression<Double> rating
+      Book cursorBook
   ) {
     if ("publishedDate".equals(sort)) {
       if (order == Order.DESC) {
@@ -300,21 +257,21 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
     }
 
     if ("rating".equals(sort)) {
-      Double cursorRating = getCursorRating(cursorBook.getId());
+      double cursorRating = cursorBook.getRating();
 
       if (order == Order.DESC) {
-        having.and(
-            rating.lt(cursorRating)
+        where.and(
+            b.rating.lt(cursorRating)
                 .or(
-                    rating.eq(cursorRating)
+                    b.rating.eq(cursorRating)
                         .and(b.createdAt.lt(cursorBook.getCreatedAt()))
                 )
         );
       } else {
-        having.and(
-            rating.gt(cursorRating)
+        where.and(
+            b.rating.gt(cursorRating)
                 .or(
-                    rating.eq(cursorRating)
+                    b.rating.eq(cursorRating)
                         .and(b.createdAt.gt(cursorBook.getCreatedAt()))
                 )
         );
@@ -323,21 +280,21 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
     }
 
     if ("reviewCount".equals(sort)) {
-      Long cursorReviewCount = getCursorReviewCount(cursorBook.getId());
+      int cursorReviewCount = cursorBook.getReviewCnt();
 
       if (order == Order.DESC) {
-        having.and(
-            reviewCount.lt(cursorReviewCount)
+        where.and(
+            b.reviewCnt.lt(cursorReviewCount)
                 .or(
-                    reviewCount.eq(cursorReviewCount)
+                    b.reviewCnt.eq(cursorReviewCount)
                         .and(b.createdAt.lt(cursorBook.getCreatedAt()))
                 )
         );
       } else {
-        having.and(
-            reviewCount.gt(cursorReviewCount)
+        where.and(
+            b.reviewCnt.gt(cursorReviewCount)
                 .or(
-                    reviewCount.eq(cursorReviewCount)
+                    b.reviewCnt.eq(cursorReviewCount)
                         .and(b.createdAt.gt(cursorBook.getCreatedAt()))
                 )
         );
@@ -362,39 +319,5 @@ public class BookQueryRepositoryImpl implements BookQueryRepository {
               )
       );
     }
-  }
-
-  private Long getCursorReviewCount(UUID bookId) {
-    Long count = queryFactory
-        .select(r.id.count())
-        .from(r)
-        .where(
-            r.book.id.eq(bookId),
-            r.deleted.isFalse()
-        )
-        .fetchOne();
-
-    if (count == null) {
-      return 0L;
-    }
-
-    return count;
-  }
-
-  private Double getCursorRating(UUID bookId) {
-    Double avg = queryFactory
-        .select(r.rating.avg())
-        .from(r)
-        .where(
-            r.book.id.eq(bookId),
-            r.deleted.isFalse()
-        )
-        .fetchOne();
-
-    if (avg == null) {
-      return 0.0;
-    }
-
-    return avg;
   }
 }

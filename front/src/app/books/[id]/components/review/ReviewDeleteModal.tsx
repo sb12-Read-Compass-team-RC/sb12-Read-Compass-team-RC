@@ -5,13 +5,14 @@ import { Review } from "@/types/reviews";
 import { Dispatch, SetStateAction, useState } from "react";
 
 export default function ReviewDeleteModal({
-  isOpen,
-  close,
-  reviewId,
-  setData,
-  setTotalElements,
-  bookId
-}: {
+                                            isOpen,
+                                            close,
+                                            reviewId,
+                                            setData,
+                                            setTotalElements,
+                                            bookId,
+                                            onBookDetailRefresh
+                                          }: {
   isOpen: boolean;
   close: () => void;
   reviewId: string;
@@ -19,18 +20,21 @@ export default function ReviewDeleteModal({
   setData: Dispatch<SetStateAction<Review[]>>;
   setTotalElements: Dispatch<SetStateAction<number>>;
   bookId: string;
+  onBookDetailRefresh: () => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showTooltip } = useTooltipStore();
 
   const handleDeleteReview = async () => {
     setIsSubmitting(true);
+
     try {
       await deleteReview(reviewId);
 
       const refreshed = await getReviews(bookId, { limit: 20 });
       setData(refreshed.content);
       setTotalElements(refreshed.totalElements);
+      onBookDetailRefresh();
 
       close();
       showTooltip("리뷰를 정상적으로 삭제하였습니다!");
@@ -42,15 +46,15 @@ export default function ReviewDeleteModal({
   };
 
   return (
-    <Modal
-      isDelete
-      isOpen={isOpen}
-      onClose={close}
-      disabled={isSubmitting}
-      buttonText="삭제"
-      action={handleDeleteReview}
-    >
-      <p className="font-medium">리뷰를 삭제하시겠습니까?</p>
-    </Modal>
+      <Modal
+          isDelete
+          isOpen={isOpen}
+          onClose={close}
+          disabled={isSubmitting}
+          buttonText="삭제"
+          action={handleDeleteReview}
+      >
+        <p className="font-medium">리뷰를 삭제하시겠습니까?</p>
+      </Modal>
   );
 }

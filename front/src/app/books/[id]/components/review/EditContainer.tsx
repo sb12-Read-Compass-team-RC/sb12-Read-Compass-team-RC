@@ -14,15 +14,16 @@ import {
 } from "react";
 
 export default function EditContainer({
-  reviewId,
-  bookId,
-  data,
-  setData,
-  prevValue,
-  setEditingReviewId,
-  rating,
-  prevRating
-}: {
+                                        reviewId,
+                                        bookId,
+                                        data,
+                                        setData,
+                                        prevValue,
+                                        setEditingReviewId,
+                                        rating,
+                                        prevRating,
+                                        onBookDetailRefresh
+                                      }: {
   reviewId: string;
   bookId: string;
   data: Review[];
@@ -31,6 +32,7 @@ export default function EditContainer({
   setEditingReviewId: Dispatch<SetStateAction<string | null>>;
   rating: number;
   prevRating: number;
+  onBookDetailRefresh: () => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -50,11 +52,14 @@ export default function EditContainer({
 
     const content = textareaRef.current?.value ?? "";
     setIsLoading(true);
+
     try {
       await putReview(reviewId, { content, rating });
 
       const refreshed = await getReviews(bookId, { limit: data.length });
       setData(refreshed.content);
+      onBookDetailRefresh();
+
       setEditingReviewId(null);
       showTooltip("리뷰 수정이 완료되었습니다!");
     } catch (error) {
@@ -67,40 +72,41 @@ export default function EditContainer({
   useEffect(() => {
     const value = textareaRef.current?.value ?? "";
     setIsDirty(
-      value.trim() !== "" && (value !== prevValue || rating !== prevRating)
+        value.trim() !== "" && (value !== prevValue || rating !== prevRating)
     );
   }, [rating, prevRating, prevValue]);
 
   return (
-    <form onSubmit={e => handleSubmit(e)}>
-      <div className="mt-[10px]">
+      <form onSubmit={e => handleSubmit(e)}>
+        <div className="mt-[10px]">
         <textarea
-          ref={textareaRef}
-          defaultValue={prevValue}
-          className={clsx(textareaStyle, "w-full")}
-          placeholder="리뷰를 수정해주세요."
-          maxLength={MAX_REVIEW_LENGTH}
-          onChange={() => {
-            const value = textareaRef.current?.value ?? "";
-            setIsDirty(
-              value.trim() !== "" &&
-                (value !== prevValue || rating !== prevRating)
-            );
-          }}
+            ref={textareaRef}
+            defaultValue={prevValue}
+            className={clsx(textareaStyle, "w-full")}
+            placeholder="리뷰를 수정해주세요."
+            maxLength={MAX_REVIEW_LENGTH}
+            onChange={() => {
+              const value = textareaRef.current?.value ?? "";
+              setIsDirty(
+                  value.trim() !== "" &&
+                  (value !== prevValue || rating !== prevRating)
+              );
+            }}
         />
-        <div className="flex justify-end gap-[12px]">
-          <Button type="button" variant="secondary" onClick={handleCancel}>
-            취소
-          </Button>
-          <Button variant="primary" disabled={!isDirty || isLoading}>
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-50 mx-auto" />
-            ) : (
-              "등록"
-            )}
-          </Button>
+
+          <div className="flex justify-end gap-[12px]">
+            <Button type="button" variant="secondary" onClick={handleCancel}>
+              취소
+            </Button>
+            <Button variant="primary" disabled={!isDirty || isLoading}>
+              {isLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-50 mx-auto" />
+              ) : (
+                  "등록"
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
   );
 }
