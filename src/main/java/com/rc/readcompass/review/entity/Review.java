@@ -73,22 +73,6 @@ public class Review extends BaseUpdatableEntity {
         }
     }
 
-    public void incrementLikeCount() {
-        this.likeCnt++;
-    }
-
-    public void decrementLikeCount() {
-        if (this.likeCnt > 0) this.likeCnt--;
-    }
-
-    public void incrementCommentCount() {
-        this.commentCnt++;
-    }
-
-    public void decrementCommentCount() {
-        if (this.commentCnt > 0) this.commentCnt--;
-    }
-
     /**
      * 논리 삭제.
      * 삭제 후에도 인기 도서/파워 유저 점수 산출에 포함됨.

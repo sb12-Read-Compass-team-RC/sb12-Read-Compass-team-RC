@@ -38,16 +38,16 @@ public class ReviewLikeService {
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return reviewLikeRepository.findByReviewIdAndUserId(reviewId, requestUserId)
-                .map(reviewLike -> unlike(review, reviewLike,requestUserId))
+                .map(reviewLike -> unlike(review.getId(), reviewLike,requestUserId))
                 .orElseGet(()-> like(review,user));
     }
 
-    private ReviewLikeDto unlike(Review review, ReviewLike reviewLike, UUID requestUserId) {
+    private ReviewLikeDto unlike(UUID reviewId, ReviewLike reviewLike, UUID requestUserId) {
         reviewLikeRepository.delete(reviewLike);
-        review.decrementLikeCount();
+        reviewRepository.decrementLikeCount(reviewId);
 
         return reviewMapper.toLikeDto(
-                review.getId(),
+                reviewId,
                 requestUserId,
                 false
         );
@@ -60,7 +60,7 @@ public class ReviewLikeService {
                 .build();
 
         reviewLikeRepository.save(reviewLike);
-        review.incrementLikeCount();
+        reviewRepository.incrementLikeCount(review.getId());
 
         notificationService.createLikeNotification(review, user);
 

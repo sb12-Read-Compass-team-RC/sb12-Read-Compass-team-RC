@@ -5,7 +5,9 @@ import jakarta.persistence.LockModeType;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,5 +30,41 @@ public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRep
     // 논리 삭제된 리뷰제외 중복 체크
     boolean existsByBookIdAndUserIdAndDeletedFalse(UUID bookId, UUID userId);
 
-    Optional<Review> findById(UUID reviewId);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        update Review r
+        set r.likeCnt = r.likeCnt + 1
+        where r.id = :reviewId
+    """)
+    void incrementLikeCount(@Param("reviewId") UUID reviewId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        update Review r
+        set r.likeCnt = case
+            when r.likeCnt > 0 then r.likeCnt - 1
+            else 0
+        end
+        where r.id = :reviewId
+    """)
+    void decrementLikeCount(@Param("reviewId") UUID reviewId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        update Review r
+        set r.commentCnt = r.commentCnt + 1
+        where r.id = :reviewId
+    """)
+    void incrementCommentCount(@Param("reviewId") UUID reviewId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        update Review r
+        set r.commentCnt = case
+            when r.commentCnt > 0 then r.commentCnt - 1
+            else 0
+        end
+        where r.id = :reviewId
+    """)
+    void decrementCommentCount(@Param("reviewId") UUID reviewId);
 }
