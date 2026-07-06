@@ -120,7 +120,12 @@ public class ReviewService {
                 .orElseThrow(()-> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
         validateOwnerOrAdmin(review, requestUserId);
 
+        Book book = getBook(review.getBook().getId());
+        int rating = review.getRating();
+
         review.softDelete();
+
+        book.removeReview(rating);
     }
 
     // 리뷰 물리 삭제
@@ -131,9 +136,6 @@ public class ReviewService {
 
         validateOwner(review, requestUserId);
 
-        Book book = getBook(review.getBook().getId());
-        int rating = review.getRating();
-
         // 같이 사라져야 할 것들 좋아요, 댓글, 알림, 랭킹 스냅샷
         reviewLikeRepository.deleteAllByReviewId(reviewId);
         commentRepository.deleteAllByReviewId(reviewId);
@@ -141,8 +143,6 @@ public class ReviewService {
         reviewRankingRepository.deleteAllByReviewId(reviewId);
 
         reviewRepository .delete(review);
-
-        book.removeReview(rating);
     }
 
     private Review getActiveReview(UUID reviewId) {

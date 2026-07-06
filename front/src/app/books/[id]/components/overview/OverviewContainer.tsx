@@ -4,10 +4,15 @@ import { ReactNode, useEffect, useState } from "react";
 
 type Props = {
   id: string;
+  refreshKey?: number;
   children: (props: { data: BookResponse | null }) => ReactNode;
 };
 
-export default function OverviewContainer({ children, id }: Props) {
+export default function OverviewContainer({
+                                            children,
+                                            id,
+                                            refreshKey = 0
+                                          }: Props) {
   const [data, setData] = useState<BookResponse | null>(null);
 
   useEffect(() => {
@@ -21,16 +26,16 @@ export default function OverviewContainer({ children, id }: Props) {
     };
 
     fetchBookDetail();
-  }, [id]);
+  }, [id, refreshKey]);
 
   return (
-    <div
-      className={clsx(
-        "flex gap-[34px] pt-[50px] pb-[60px] border-b border-gray-100",
-        "max-sm:flex-col max-sm:pb-[40px]"
-      )}
-    >
-      {children({ data })}
-    </div>
+      <div
+          className={clsx(
+              "flex gap-[34px] pt-[50px] pb-[60px] border-b border-gray-100",
+              "max-sm:flex-col max-sm:pb-[40px]"
+          )}
+      >
+        {children({ data })}
+      </div>
   );
 }
