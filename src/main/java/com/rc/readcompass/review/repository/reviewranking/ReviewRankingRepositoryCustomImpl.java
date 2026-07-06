@@ -1,10 +1,8 @@
 package com.rc.readcompass.review.repository.reviewranking;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.rc.readcompass.book.entity.QBinaryContent;
 import com.rc.readcompass.common.PeriodType;
@@ -12,8 +10,8 @@ import com.rc.readcompass.common.slice.SliceCursorPageResponse;
 import com.rc.readcompass.review.dto.PopularReviewDto;
 import com.rc.readcompass.review.dto.PopularReviewSearchRequest;
 import com.rc.readcompass.review.entity.QReviewRanking;
+import com.rc.readcompass.storage.FileStorage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -24,15 +22,10 @@ import java.util.List;
 public class ReviewRankingRepositoryCustomImpl implements ReviewRankingRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final FileStorage fileStorage;
 
     private final QReviewRanking rr = QReviewRanking.reviewRanking;
     private final QBinaryContent binaryContent = QBinaryContent.binaryContent;
-
-    @Value("${app.backend.base-url}")
-    private String backendBaseUrl;
-
-    @Value("${app.storage.attachment-url-path:/attachments}")
-    private String attachmentUrlPath;
 
     @Override
     public SliceCursorPageResponse<PopularReviewDto> searchLatestPopularReviews(
@@ -89,23 +82,14 @@ public class ReviewRankingRepositoryCustomImpl implements ReviewRankingRepositor
             }
         }
 
-
-        Expression<String> bookThumbnailUrlExpression =
-                Expressions.stringTemplate(
-                        "case when {0} is null then null else concat({1}, {2}, '/', {0}) end",
-                        binaryContent.renamedFileUrl,
-                        Expressions.constant(backendBaseUrl),
-                        Expressions.constant(attachmentUrlPath)
-                );
-
-        List<PopularReviewDto> fetched = queryFactory
+        List<PopularReviewDto> rawFetched = queryFactory
                 .select(Projections.constructor(
                         PopularReviewDto.class,
                         rr.id,
                         rr.review.id,
                         rr.review.book.id,
                         rr.review.book.title,
-                        bookThumbnailUrlExpression,
+                        binaryContent.renamedFileUrl,
                         rr.review.user.id,
                         rr.review.user.nickname,
                         rr.review.content,
@@ -129,6 +113,10 @@ public class ReviewRankingRepositoryCustomImpl implements ReviewRankingRepositor
                         : rr.rankPosition.desc())
                 .limit(size + 1L)
                 .fetch();
+
+        List<PopularReviewDto> fetched = rawFetched.stream()
+                .map(this::applyThumbnailUrl)
+                .toList();
 
         boolean hasNext = fetched.size() > size;
 
@@ -172,5 +160,29 @@ public class ReviewRankingRepositoryCustomImpl implements ReviewRankingRepositor
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("인기 리뷰 커서는 rank 숫자여야 합니다.");
         }
+    }
+
+    private PopularReviewDto applyThumbnailUrl(PopularReviewDto dto) {
+        String resolvedThumbnailUrl = dto.bookThumbnailUrl() == null || dto.bookThumbnailUrl().isBlank()
+                ? null
+                : fileStorage.getAttachFileUrl(dto.bookThumbnailUrl());
+
+        return new PopularReviewDto(
+                dto.id(),
+                dto.reviewId(),
+                dto.bookId(),
+                dto.bookTitle(),
+                resolvedThumbnailUrl,
+                dto.userId(),
+                dto.userNickname(),
+                dto.reviewContent(),
+                dto.reviewRating(),
+                dto.period(),
+                dto.createdAt(),
+                dto.rank(),
+                dto.score(),
+                dto.likeCount(),
+                dto.commentCount()
+        );
     }
 }
