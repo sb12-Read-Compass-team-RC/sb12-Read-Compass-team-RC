@@ -66,7 +66,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+      throws Exception {
     return configuration.getAuthenticationManager();
   }
 
@@ -77,7 +78,9 @@ public class SecurityConfig {
 
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
-    return web -> {web.httpFirewall(allowDoubleSlashFirewall());};
+    return web -> {
+      web.httpFirewall(allowDoubleSlashFirewall());
+    };
   }
 
   @Bean
@@ -88,21 +91,23 @@ public class SecurityConfig {
         .httpBasic(basic -> basic.disable());
 
     http.authorizeHttpRequests(auth -> auth
-        // 에러 디스패치, 정적 리소스(빌드된 프론트 화면·이미지·업로드 파일)는 누구나 접근 가능
-        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-        .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
-            "/attachments/**", "/*.ico", "/*.png").permitAll()
-        // 소셜 로그인 콜백 (로그인 전 단계이므로 개방)
-        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-        // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
-        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-        .requestMatchers("/api/users/login", "/api/users/reissue",
-            "/api/users/logout").permitAll()
-        // 관리자 API
-        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-        // 그 외 모든 API 는 유효한 JWT(로그인) 필수
-        .anyRequest().authenticated()
+            // 에러 디스패치, 정적 리소스(빌드된 프론트 화면·이미지·업로드 파일)는 누구나 접근 가능
+            .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+            .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
+                "/attachments/**", "/*.ico", "/*.png").permitAll()
+            // 소셜 로그인 콜백 (로그인 전 단계이므로 개방)
+            .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+            // ALB 헬스체크 (인증 불가한 내부 요청이므로 개방)
+            .requestMatchers("/actuator/health/**").permitAll()
+            // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
+            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+            .requestMatchers("/api/users/login", "/api/users/reissue",
+                "/api/users/logout").permitAll()
+            // 관리자 API
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            // 그 외 모든 API 는 유효한 JWT(로그인) 필수
+            .anyRequest().authenticated()
     );
 
     http.oauth2Login(oauth2 -> oauth2
@@ -114,9 +119,12 @@ public class SecurityConfig {
 
     http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), LoginFilter.class);
 
-    http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenService, cookieUtil, accessExpireMs, refreshExpireMs), UsernamePasswordAuthenticationFilter.class);
+    http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+            refreshTokenService, cookieUtil, accessExpireMs, refreshExpireMs),
+        UsernamePasswordAuthenticationFilter.class);
 
-    http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository, cookieUtil), LogoutFilter.class);
+    http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository, cookieUtil),
+        LogoutFilter.class);
 
     http.exceptionHandling(ex -> ex
         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
