@@ -1,8 +1,7 @@
 import { JSX } from "react";
 
-// 백엔드(스프링) 주소. OAuth2 는 전체 페이지 리다이렉트라 프록시가 아닌 절대주소를 쓴다.
-const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+//
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "";
 
 type Provider = "google" | "naver";
 
