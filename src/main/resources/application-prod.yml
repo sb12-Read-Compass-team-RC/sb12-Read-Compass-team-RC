@@ -62,6 +62,11 @@ app:
   frontend:
     auth-success-url: ${SUCCESS_REDIRECT_URL:http://localhost:8080/#/oauth/callback}
     auth-failure-url: ${FAILURE_REDIRECT_URL:http://localhost:8080/#/auth/error}
+  backend:
+    base-url: ${BACKEND_BASE_URL:http://localhost:8080}
+  storage:
+    attachment-path: ${STORAGE_LOCAL_ROOT_PATH:/app/uploads}
+    attachment-url-path: /attachments
   jwt:
     access-expire-ms: ${ACCESS_EXPIRE_MS:1800000}      # 30분
     refresh-expire-ms: ${REFRESH_EXPIRE_MS:1209600000} # 14일
