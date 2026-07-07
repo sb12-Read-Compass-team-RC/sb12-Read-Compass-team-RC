@@ -60,8 +60,8 @@ logging:
 
 app:
   frontend:
-    auth-success-url: ${SUCCESS_REDIRECT_URL:http://localhost:8080/#/oauth/callback}
-    auth-failure-url: ${FAILURE_REDIRECT_URL:http://localhost:8080/#/auth/error}
+    auth-success-url: ${SUCCESS_REDIRECT_URL:https://read-compass.com/#/oauth/callback}
+    auth-failure-url: ${FAILURE_REDIRECT_URL:https://read-compass.com/#/auth/error}
   backend:
     base-url: ${BACKEND_BASE_URL:http://localhost:8080}
   storage:
