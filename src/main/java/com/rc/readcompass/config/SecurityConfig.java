@@ -4,7 +4,7 @@ import com.rc.readcompass.jwt.filter.CustomLogoutFilter;
 import com.rc.readcompass.jwt.filter.JWTFilter;
 import com.rc.readcompass.jwt.filter.LoginFilter;
 import com.rc.readcompass.jwt.repository.RefreshRepository;
-import com.rc.readcompass.jwt.service.RefreshTokenService;
+import com.rc.readcompass.jwt.service.TokenIssueService;
 import com.rc.readcompass.jwt.util.CookieUtil;
 import com.rc.readcompass.jwt.util.JWTUtil;
 import com.rc.readcompass.oauth2.handler.OAuth2LoginFailureHandler;
@@ -12,9 +12,7 @@ import com.rc.readcompass.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.rc.readcompass.oauth2.service.CustomOAuth2UserService;
 import com.rc.readcompass.user.Repository.UserRepository;
 import jakarta.servlet.DispatcherType;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,16 +39,10 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  @Value("${app.jwt.access-expire-ms}")
-  private long accessExpireMs;
-
-  @Value("${app.jwt.refresh-expire-ms}")
-  private long refreshExpireMs;
-
   private final AuthenticationConfiguration authenticationConfiguration;
   private final JWTUtil jwtUtil;
   private final RefreshRepository refreshRepository;
-  private final RefreshTokenService refreshTokenService;
+  private final TokenIssueService tokenIssueService;
   private final CookieUtil cookieUtil;
   private final UserRepository userRepository;
 
@@ -91,36 +83,36 @@ public class SecurityConfig {
         .httpBasic(basic -> basic.disable());
 
     http.authorizeHttpRequests(auth -> auth
-            // 에러 디스패치, 정적 리소스(빌드된 프론트 화면·이미지·업로드 파일)는 누구나 접근 가능
-            .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-            .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
-                "/attachments/**", "/*.ico", "/*.png").permitAll()
-            // 소셜 로그인 콜백 (로그인 전 단계이므로 개방)
-            .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-            // ALB 헬스체크 (인증 불가한 내부 요청이므로 개방)
-            .requestMatchers("/actuator/health/**").permitAll()
-            // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
-            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-            .requestMatchers("/api/users/login", "/api/users/reissue",
-                "/api/users/logout").permitAll()
-            // 관리자 API
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            // 그 외 모든 API 는 유효한 JWT(로그인) 필수
-            .anyRequest().authenticated()
+        // 에러 디스패치, 정적 리소스(빌드된 프론트 화면·이미지·업로드 파일)는 누구나 접근 가능
+        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+        .requestMatchers("/", "/index.html", "/assets/**", "/images/**", "/uploads/**", "/files/**",
+            "/attachments/**", "/*.ico", "/*.png").permitAll()
+        // 소셜 로그인 콜백 (로그인 전 단계이므로 개방)
+        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+        // ALB 헬스체크 (인증 불가한 내부 요청이므로 개방)
+        .requestMatchers("/actuator/health/**").permitAll()
+        // 인증 없이 열어야 하는 API: 회원가입, 로그인, 재발급, 로그아웃
+        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+        .requestMatchers("/api/users/login", "/api/users/reissue",
+            "/api/users/logout").permitAll()
+        // 관리자 API
+        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+        // 그 외 모든 API 는 유효한 JWT(로그인) 필수
+        .anyRequest().authenticated()
     );
 
     http.oauth2Login(oauth2 -> oauth2
         .userInfoEndpoint(userInfo -> userInfo
             .userService(customOAuth2UserService))  // 유저 정보 처리
-        .successHandler(oAuth2LoginSuccessHandler)  // JWT 발급
+        .successHandler(oAuth2LoginSuccessHandler)  // refresh 쿠키 발급 후 리다이렉트 (access 는 /reissue 로 수령)
         .failureHandler(oAuth2LoginFailureHandler)
     );
 
     http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), LoginFilter.class);
 
-    http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-            refreshTokenService, cookieUtil, accessExpireMs, refreshExpireMs),
+    http.addFilterAt(
+        new LoginFilter(authenticationManager(authenticationConfiguration), tokenIssueService),
         UsernamePasswordAuthenticationFilter.class);
 
     http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository, cookieUtil),
