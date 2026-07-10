@@ -10,7 +10,7 @@ spring:
       max-file-size: 100MB
       max-request-size: 300MB
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:prod}
 
   # ──────────────────────────────────────────────
   # 시크릿 — 로컬: .env / 운영: ECS 태스크 정의(SSM ValueFrom)
