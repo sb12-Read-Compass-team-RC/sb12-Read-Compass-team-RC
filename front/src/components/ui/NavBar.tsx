@@ -8,6 +8,8 @@ import { getNotifications } from "@/api/notifications";
 import Notification from "./Notifications/Notification";
 import NavProfile from "../common/NavProfile";
 import getImagePath from "@/constants/images.ts";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { tokenStore } from "@/api/tokenStore";
 
 export default function NavBar() {
   const [mounted, setMounted] = useState(false);
@@ -57,12 +59,63 @@ export default function NavBar() {
     }
   };
 
-  // 로그인 직후 1회만 미확인 알림 여부를 체크한다.
-  // 이후 갱신은 알림창을 열거나 알림을 읽을 때만 수행한다.
+  // 로그인 후 최초 1회 읽지 않은 알림 여부를 조회한다.
+  // 이후에는 SSE 이벤트를 통해 실시간으로 갱신한다.
   useEffect(() => {
     if (userId) {
       checkUnreadNotifications();
     }
+  }, [userId]);
+
+  // 로그인한 사용자의 SSE 연결을 생성한다.
+  // 새로운 알림 이벤트(notification)를 수신하면
+  // 읽지 않은 알림 여부를 다시 조회하여 헤더의 빨간 점을 즉시 갱신한다.
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    const token = tokenStore.get();
+
+    if (!token) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    fetchEventSource("/api/notifications/subscribe", {
+      method: "GET",
+
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+
+      credentials: "include",
+
+      signal: controller.signal,
+
+      async onopen(response) {
+        if (!response.ok) {
+          throw new Error("SSE 연결 실패");
+        }
+
+        console.log("SSE Connected");
+      },
+
+      onmessage(event) {
+        if (event.event === "notification") {
+          checkUnreadNotifications();
+        }
+      },
+
+      onerror(error) {
+        console.error("SSE Error:", error);
+      }
+    });
+
+    return () => {
+      controller.abort();
+    };
   }, [userId]);
 
   return (
