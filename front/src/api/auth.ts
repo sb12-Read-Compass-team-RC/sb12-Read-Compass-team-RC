@@ -99,19 +99,6 @@ async signup(userData: SignupRequest): Promise<SignupResponse> {
     }
   },
 
-  // OAuth2 콜백 — 성공 핸들러가 심어준 refresh 쿠키로 access 토큰(Authorization 헤더)과
-  // 유저 정보(바디: id/nickname/role)를 수령한다.
-  // 백엔드가 더 이상 access 를 리다이렉트 URL 에 싣지 않으므로 이 호출이 필수다.
-  // access 저장(tokenStore.set)은 reissueSession 내부에서 처리된다.
-  async completeOAuthLogin(): Promise<LoginResponse> {
-    const { data, accessToken } =
-      await apiClient.reissueSession<LoginResponse>();
-    if (!accessToken) {
-      throw new Error("소셜 로그인에 실패했습니다.");
-    }
-    return data;
-  },
-
   // 로그아웃 — 서버에서 refresh 쿠키/DB 제거
   async logout(): Promise<void> {
     try {
