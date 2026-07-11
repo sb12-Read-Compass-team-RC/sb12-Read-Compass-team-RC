@@ -110,20 +110,29 @@ class ApiClient {
     );
   }
 
-  // refresh 쿠키로 새 access 토큰 발급 (rotation: 서버가 새 refresh 쿠키도 내려줌)
-  // 백엔드 ReissueController 경로(/api/users/reissue)에 맞춘다.
-  private async refreshAccessToken(): Promise<string | null> {
-    const response = await axios.post(
+  // refresh 쿠키로 새 access 토큰(Authorization 헤더) + 유저 정보(바디: id/nickname/role)를 받는다.
+  // (rotation: 서버가 새 refresh 쿠키도 내려줌)
+  //  - 인터셉터의 자동 재발급과 OAuth2 콜백 페이지가 공용으로 사용한다.
+  //  - 인터셉터 무한루프를 피하기 위해 인스턴스가 아닌 bare axios 를 사용한다.
+  async reissueSession<T = unknown>(): Promise<{
+    data: T;
+    accessToken: string | null;
+  }> {
+    const response = await axios.post<T>(
       API_BASE_URL + "/api/users/reissue",
       {},
       { withCredentials: true }
     );
-    const newAccess = extractBearer(response.headers["authorization"]);
-    if (newAccess) {
-      tokenStore.set(newAccess);
-      return newAccess;
+    const accessToken = extractBearer(response.headers["authorization"]);
+    if (accessToken) {
+      tokenStore.set(accessToken);
     }
-    return null;
+    return { data: response.data, accessToken };
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    const { accessToken } = await this.reissueSession();
+    return accessToken;
   }
 
   async get<T>(

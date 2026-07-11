@@ -6,11 +6,9 @@ import com.rc.readcompass.jwt.entity.CustomUserDetails;
 import com.rc.readcompass.notification.dto.NotificationDto;
 import com.rc.readcompass.notification.dto.NotificationSearchRequest;
 import com.rc.readcompass.notification.service.NotificationService;
-import com.rc.readcompass.notification.service.NotificationSseService;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +24,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class NotificationController {
 
   private final NotificationService notificationService;
-  private final NotificationSseService notificationSseService;
 
   // 알림 읽음 상태 업데이트
   @PatchMapping("/{notificationId}")
@@ -46,16 +42,6 @@ public class NotificationController {
   ){
     notificationService.confirmAllNotifications(userDetails.getUserId());
     return ResponseEntity.noContent().build();
-  }
-
-  // SSE 연결
-  @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public SseEmitter subscribe(
-      @AuthenticationPrincipal CustomUserDetails userDetails
-  ) {
-    return notificationSseService.subscribe(
-        userDetails.getUserId()
-    );
   }
 
   // 알림 목록 조회
