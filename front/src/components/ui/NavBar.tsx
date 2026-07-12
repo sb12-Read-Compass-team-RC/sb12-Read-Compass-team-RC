@@ -118,7 +118,6 @@ export default function NavBar() {
     };
   }, [userId]);
 
-
   return (
     <div
       className={clsx(
