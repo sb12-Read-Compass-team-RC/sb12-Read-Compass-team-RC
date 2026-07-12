@@ -23,6 +23,7 @@ public class NotificationService {
 
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
+  private final NotificationSseService notificationSseService;
 
   // 알림 읽음 상태 업데이트
   @Transactional
@@ -74,6 +75,7 @@ public class NotificationService {
         NotificationType.REVIEW_LIKE
     );
     notificationRepository.save(notification);
+    notificationSseService.send(receiver.getId());
   }
 
   // 리뷰에 댓글
@@ -94,6 +96,7 @@ public class NotificationService {
         NotificationType.REVIEW_COMMENT
     );
     notificationRepository.save(notification);
+    notificationSseService.send(receiver.getId());
   }
 
 }
