@@ -39,6 +39,15 @@ public class NotificationController {
     return ResponseEntity.ok(response);
   }
 
+  // 모든 알림 읽음 처리
+  @PatchMapping("/read-all")
+  public ResponseEntity<Void> confirmAllNotifications(
+      @AuthenticationPrincipal CustomUserDetails userDetails
+  ){
+    notificationService.confirmAllNotifications(userDetails.getUserId());
+    return ResponseEntity.noContent().build();
+  }
+
   // SSE 연결
   @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter subscribe(
@@ -47,15 +56,6 @@ public class NotificationController {
     return notificationSseService.subscribe(
         userDetails.getUserId()
     );
-  }
-
-  // 모든 알림 읽음 처리
-  @PatchMapping("/read-all")
-  public ResponseEntity<Void> confirmAllNotifications(
-      @AuthenticationPrincipal CustomUserDetails userDetails
-  ){
-    notificationService.confirmAllNotifications(userDetails.getUserId());
-    return ResponseEntity.noContent().build();
   }
 
   // 알림 목록 조회
