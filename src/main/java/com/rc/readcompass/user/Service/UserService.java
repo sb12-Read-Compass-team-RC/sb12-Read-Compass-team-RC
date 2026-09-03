@@ -2,6 +2,7 @@ package com.rc.readcompass.user.Service;
 
 import com.rc.readcompass.exception.ErrorCode;
 import com.rc.readcompass.exception.base.CustomException;
+import com.rc.readcompass.jwt.repository.RefreshRepository;
 import com.rc.readcompass.oauth2.dto.AuthProvider;
 import com.rc.readcompass.user.entity.UserRole;
 import com.rc.readcompass.user.Mapper.UserMapper;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RefreshRepository refreshRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
@@ -87,6 +89,7 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         user.softDelete();
+        refreshRepository.deleteByUserId(userId);
     }
 
     // DELETE /api/users/{userId}/hard - 물리 삭제
@@ -94,6 +97,8 @@ public class UserService {
     public void hardDeleteUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        refreshRepository.deleteByUserId(userId);
         userRepository.delete(user);
     }
 }

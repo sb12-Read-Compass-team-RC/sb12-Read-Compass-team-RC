@@ -67,14 +67,7 @@ public class JWTFilter extends OncePerRequestFilter {
         UUID userId     = UUID.fromString(claims.get("userId", String.class));
         String username = claims.get("username", String.class);
         String role     = claims.get("role", String.class);
-
-        // 토큰 서명이 유효해도, 해당 사용자가 DB에 실제로 존재하고 탈퇴하지 않았는지 확인한다.
-        // (DB 초기화/회원 탈퇴 후 남아있는 토큰만으로 로그인 상태가 유지되는 것을 방지)
-        if (!userRepository.existsByIdAndDeletedFalse(userId)) {
-            unauthorized(response, "user not found");
-            return;
-        }
-
+        
         AuthDto authDto = new AuthDto();
         authDto.setId(userId);
         authDto.setUsername(username);

@@ -59,28 +59,20 @@ public class SecurityConfig {
   private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
   @Bean
-  public HttpFirewall allowDoubleSlashFirewall() {
+  public HttpFirewall httpFirewall() {
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedDoubleSlash(true);
     return firewall;
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-      throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
     return configuration.getAuthenticationManager();
   }
 
   @Bean
   public BCryptPasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public WebSecurityCustomizer webSecurityCustomizer() {
-    return web -> {
-      web.httpFirewall(allowDoubleSlashFirewall());
-    };
   }
 
   @Bean
